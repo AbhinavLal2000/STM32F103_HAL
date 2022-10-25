@@ -36,8 +36,8 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define BL_V_MAJOR 1
-#define BL_V_MINOR 0
+#define APP_V_MAJOR 1
+#define APP_V_MINOR 0
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -66,15 +66,6 @@ int fputc(int ch, FILE *f)
 {
 	HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
 	return ch;
-}
-
-void goto_application(void)
-{
-	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, 1);
-	printf("Loading application...\r\n");
-	void (*app_reset_handler)(void) = (void*)(*((volatile uint32_t*) (0x08010000 + 4U)));
-	__set_MSP(*(volatile uint32_t*) 0x08010000);
-	app_reset_handler();
 }
 
 /* USER CODE END 0 */
@@ -110,14 +101,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  printf("Bootloader v%d.%d\r\n", BL_V_MAJOR, BL_V_MINOR);
-  for(uint8_t i = 0; i < 20; i++)
-  {
-	  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-	  HAL_Delay(250);
-  }
-  HAL_Delay(1000);
-  goto_application();
+  printf("Application v%d.%d\r\n", APP_V_MAJOR, APP_V_MINOR);
 
   /* USER CODE END 2 */
 
@@ -125,6 +109,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+	  HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
