@@ -57,6 +57,29 @@ static void MX_USART1_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+static uint8_t test;
+
+void UART_tx_ascii(void)
+{
+	uint8_t data;
+	uint8_t CR = '\r';
+	uint8_t LF = '\n';
+	for(data = 33; data < 127; data++)
+	{
+		HAL_UART_Transmit(&huart1, &data, 1, 100);
+		HAL_Delay(100);
+	}
+	HAL_UART_Transmit(&huart1, &CR, 1, 100);
+	HAL_UART_Transmit(&huart1, &LF, 1, 100);
+}
+
+uint8_t UART_rx_byte(void)
+{
+	uint8_t data;
+	HAL_UART_Receive(&huart1, &data, 1, 100);
+	return data;
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -89,9 +112,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  uint8_t data = 33;
-  uint8_t CR = '\r';
-  uint8_t LF = '\n';
+
 
   /* USER CODE END 2 */
 
@@ -99,13 +120,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  for(data = 33; data < 127; data++)
-	  {
-		  HAL_UART_Transmit(&huart1, &data, 1, 100);
-		  HAL_Delay(100);
-	  }
-	  HAL_UART_Transmit(&huart1, &CR, 1, 100);
-	  HAL_UART_Transmit(&huart1, &LF, 1, 100);
+	  test = UART_rx_byte();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
