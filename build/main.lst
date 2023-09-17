@@ -1,0 +1,2501 @@
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Src/main.c"
+  18              		.section	.rodata.lcd_task.str1.4,"aMS",%progbits,1
+  19              		.align	2
+  20              	.LC0:
+  21 0000 2000     		.ascii	" \000"
+  22 0002 0000     		.align	2
+  23              	.LC1:
+  24 0004 2300     		.ascii	"#\000"
+  25              		.section	.text.lcd_task,"ax",%progbits
+  26              		.align	1
+  27              		.global	lcd_task
+  28              		.syntax unified
+  29              		.thumb
+  30              		.thumb_func
+  32              	lcd_task:
+  33              	.LVL0:
+  34              	.LFB79:
+   1:Src/main.c    **** /* USER CODE BEGIN Header */
+   2:Src/main.c    **** /**
+   3:Src/main.c    ****   ******************************************************************************
+   4:Src/main.c    ****   * @file           : main.c
+   5:Src/main.c    ****   * @brief          : Main program body
+   6:Src/main.c    ****   ******************************************************************************
+   7:Src/main.c    ****   * @attention
+   8:Src/main.c    ****   *
+   9:Src/main.c    ****   * Copyright (c) 2023 STMicroelectronics.
+  10:Src/main.c    ****   * All rights reserved.
+  11:Src/main.c    ****   *
+  12:Src/main.c    ****   * This software is licensed under terms that can be found in the LICENSE file
+  13:Src/main.c    ****   * in the root directory of this software component.
+  14:Src/main.c    ****   * If no LICENSE file comes with this software, it is provided AS-IS.
+  15:Src/main.c    ****   *
+  16:Src/main.c    ****   ******************************************************************************
+  17:Src/main.c    ****   */
+  18:Src/main.c    **** /* USER CODE END Header */
+  19:Src/main.c    **** /* Includes ------------------------------------------------------------------*/
+  20:Src/main.c    **** #include "main.h"
+  21:Src/main.c    **** #include "cmsis_os.h"
+  22:Src/main.c    **** 
+  23:Src/main.c    **** /* Private includes ----------------------------------------------------------*/
+  24:Src/main.c    **** /* USER CODE BEGIN Includes */
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 2
+
+
+  25:Src/main.c    **** #include "nokia.h"
+  26:Src/main.c    **** #include <stdio.h>
+  27:Src/main.c    **** #include <string.h>
+  28:Src/main.c    **** /* USER CODE END Includes */
+  29:Src/main.c    **** 
+  30:Src/main.c    **** /* Private typedef -----------------------------------------------------------*/
+  31:Src/main.c    **** typedef StaticSemaphore_t osStaticMutexDef_t;
+  32:Src/main.c    **** /* USER CODE BEGIN PTD */
+  33:Src/main.c    **** 
+  34:Src/main.c    **** /* USER CODE END PTD */
+  35:Src/main.c    **** 
+  36:Src/main.c    **** /* Private define ------------------------------------------------------------*/
+  37:Src/main.c    **** /* USER CODE BEGIN PD */
+  38:Src/main.c    **** 
+  39:Src/main.c    **** /* USER CODE END PD */
+  40:Src/main.c    **** 
+  41:Src/main.c    **** /* Private macro -------------------------------------------------------------*/
+  42:Src/main.c    **** /* USER CODE BEGIN PM */
+  43:Src/main.c    **** 
+  44:Src/main.c    **** /* USER CODE END PM */
+  45:Src/main.c    **** 
+  46:Src/main.c    **** /* Private variables ---------------------------------------------------------*/
+  47:Src/main.c    **** SPI_HandleTypeDef hspi1;
+  48:Src/main.c    **** 
+  49:Src/main.c    **** /* Definitions for defaultTask */
+  50:Src/main.c    **** osThreadId_t defaultTaskHandle;
+  51:Src/main.c    **** const osThreadAttr_t defaultTask_attributes = {
+  52:Src/main.c    ****   .name = "defaultTask",
+  53:Src/main.c    ****   .stack_size = 128 * 4,
+  54:Src/main.c    ****   .priority = (osPriority_t) osPriorityNormal,
+  55:Src/main.c    **** };
+  56:Src/main.c    **** 
+  57:Src/main.c    **** osThreadId_t lcd_task_handle;
+  58:Src/main.c    **** const osThreadAttr_t lcd_task_handle_attributes = {
+  59:Src/main.c    ****   .name = "LCD_Task",
+  60:Src/main.c    ****   .stack_size = 128*4,
+  61:Src/main.c    ****   .priority = (osPriority_t) osPriorityNormal
+  62:Src/main.c    **** };
+  63:Src/main.c    **** 
+  64:Src/main.c    **** osThreadId_t button_task_handle;
+  65:Src/main.c    **** const osThreadAttr_t button_task_handle_attributes = {
+  66:Src/main.c    ****   .name = "Button_Task",
+  67:Src/main.c    ****   .stack_size = 128*4,
+  68:Src/main.c    ****   .priority = (osPriority_t) osPriorityNormal
+  69:Src/main.c    **** };
+  70:Src/main.c    **** 
+  71:Src/main.c    **** /* Definitions for SPI_MUTEX */
+  72:Src/main.c    **** osMutexId_t SPI_MUTEXHandle;
+  73:Src/main.c    **** osStaticMutexDef_t SPI_MUTEXControlBlock;
+  74:Src/main.c    **** const osMutexAttr_t SPI_MUTEX_attributes = {
+  75:Src/main.c    ****   .name = "SPI_MUTEX",
+  76:Src/main.c    ****   .cb_mem = &SPI_MUTEXControlBlock,
+  77:Src/main.c    ****   .cb_size = sizeof(SPI_MUTEXControlBlock),
+  78:Src/main.c    **** };
+  79:Src/main.c    **** /* USER CODE BEGIN PV */
+  80:Src/main.c    **** nokia_t n = {
+  81:Src/main.c    ****   .h        = &hspi1,
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 3
+
+
+  82:Src/main.c    ****   .DC_port  = N_DC_GPIO_Port,
+  83:Src/main.c    ****   .DC_pin   = N_DC_Pin,
+  84:Src/main.c    ****   .RST_port = N_RST_GPIO_Port,
+  85:Src/main.c    ****   .RST_pin  = N_RST_Pin,
+  86:Src/main.c    ****   .CS_port  = SPI1_CS_GPIO_Port,
+  87:Src/main.c    ****   .CS_pin   = SPI1_CS_Pin
+  88:Src/main.c    **** };
+  89:Src/main.c    **** 
+  90:Src/main.c    **** typedef struct
+  91:Src/main.c    **** {
+  92:Src/main.c    ****   int x;
+  93:Src/main.c    ****   int y;
+  94:Src/main.c    **** 
+  95:Src/main.c    **** } enemy_sprite_t;
+  96:Src/main.c    **** 
+  97:Src/main.c    **** int x_index = 0;
+  98:Src/main.c    **** int y_index = 0;
+  99:Src/main.c    **** int score   = 0;
+ 100:Src/main.c    **** 
+ 101:Src/main.c    **** /* USER CODE END PV */
+ 102:Src/main.c    **** 
+ 103:Src/main.c    **** /* Private function prototypes -----------------------------------------------*/
+ 104:Src/main.c    **** void SystemClock_Config(void);
+ 105:Src/main.c    **** static void MX_GPIO_Init(void);
+ 106:Src/main.c    **** static void MX_SPI1_Init(void);
+ 107:Src/main.c    **** void StartDefaultTask(void *argument);
+ 108:Src/main.c    **** 
+ 109:Src/main.c    **** /* USER CODE BEGIN PFP */
+ 110:Src/main.c    **** 
+ 111:Src/main.c    **** /* USER CODE END PFP */
+ 112:Src/main.c    **** 
+ 113:Src/main.c    **** /* Private user code ---------------------------------------------------------*/
+ 114:Src/main.c    **** /* USER CODE BEGIN 0 */
+ 115:Src/main.c    **** 
+ 116:Src/main.c    **** uint8_t read_btn_ok(void)
+ 117:Src/main.c    **** {
+ 118:Src/main.c    ****   HAL_Delay(10);
+ 119:Src/main.c    ****   return (uint8_t)HAL_GPIO_ReadPin(BTN_OK_GPIO_Port, BTN_OK_Pin);
+ 120:Src/main.c    **** }
+ 121:Src/main.c    **** uint8_t read_btn_up(void)
+ 122:Src/main.c    **** {
+ 123:Src/main.c    ****   HAL_Delay(10);
+ 124:Src/main.c    ****   return (uint8_t)HAL_GPIO_ReadPin(BTN_UP_GPIO_Port, BTN_UP_Pin);
+ 125:Src/main.c    **** }
+ 126:Src/main.c    **** uint8_t read_btn_dn(void)
+ 127:Src/main.c    **** {
+ 128:Src/main.c    ****   HAL_Delay(10);
+ 129:Src/main.c    ****   return (uint8_t)HAL_GPIO_ReadPin(BTN_DN_GPIO_Port, BTN_DN_Pin);
+ 130:Src/main.c    **** }
+ 131:Src/main.c    **** uint8_t read_btn_rt(void)
+ 132:Src/main.c    **** {
+ 133:Src/main.c    ****   HAL_Delay(10);
+ 134:Src/main.c    ****   return (uint8_t)HAL_GPIO_ReadPin(BTN_RT_GPIO_Port, BTN_RT_Pin);
+ 135:Src/main.c    **** }
+ 136:Src/main.c    **** uint8_t read_btn_lt(void)
+ 137:Src/main.c    **** {
+ 138:Src/main.c    ****   HAL_Delay(10);
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 4
+
+
+ 139:Src/main.c    ****   return (uint8_t)HAL_GPIO_ReadPin(BTN_LT_GPIO_Port, BTN_LT_Pin);
+ 140:Src/main.c    **** }
+ 141:Src/main.c    **** 
+ 142:Src/main.c    **** int get_random_number(void)
+ 143:Src/main.c    **** {
+ 144:Src/main.c    ****   return 5;
+ 145:Src/main.c    **** }
+ 146:Src/main.c    **** 
+ 147:Src/main.c    **** void generate_enemy_sprite(nokia_t *n)
+ 148:Src/main.c    **** {
+ 149:Src/main.c    ****   int x = get_random_number();
+ 150:Src/main.c    ****   enemy_sprite_t *e = (enemy_sprite_t*)malloc(1*sizeof(enemy_sprite_t));
+ 151:Src/main.c    **** }
+ 152:Src/main.c    **** 
+ 153:Src/main.c    **** void lcd_task(void* args)
+ 154:Src/main.c    **** {
+  35              		.loc 1 154 1 view -0
+  36              		.cfi_startproc
+  37              		@ Volatile: function does not return.
+  38              		@ args = 0, pretend = 0, frame = 0
+  39              		@ frame_needed = 0, uses_anonymous_args = 0
+  40              		.loc 1 154 1 is_stmt 0 view .LVU1
+  41 0000 08B5     		push	{r3, lr}
+  42              		.cfi_def_cfa_offset 8
+  43              		.cfi_offset 3, -8
+  44              		.cfi_offset 14, -4
+ 155:Src/main.c    ****   x_index = 38;
+  45              		.loc 1 155 3 is_stmt 1 view .LVU2
+  46              		.loc 1 155 11 is_stmt 0 view .LVU3
+  47 0002 104B     		ldr	r3, .L6
+  48 0004 2622     		movs	r2, #38
+  49 0006 1A60     		str	r2, [r3]
+ 156:Src/main.c    ****   y_index = 1;
+  50              		.loc 1 156 3 is_stmt 1 view .LVU4
+  51              		.loc 1 156 11 is_stmt 0 view .LVU5
+  52 0008 0F4B     		ldr	r3, .L6+4
+  53 000a 0122     		movs	r2, #1
+  54 000c 1A60     		str	r2, [r3]
+  55 000e 0CE0     		b	.L3
+  56              	.LVL1:
+  57              	.L5:
+ 157:Src/main.c    ****   while (1)
+ 158:Src/main.c    ****   {
+ 159:Src/main.c    ****     n_print(&n, y_index, 0, " ");
+ 160:Src/main.c    ****     y_index++;
+ 161:Src/main.c    ****     if (y_index > 5) y_index = 1;
+  58              		.loc 1 161 22 is_stmt 1 discriminator 1 view .LVU6
+  59              		.loc 1 161 30 is_stmt 0 discriminator 1 view .LVU7
+  60 0010 0122     		movs	r2, #1
+  61 0012 2260     		str	r2, [r4]
+  62              	.L2:
+ 162:Src/main.c    ****     n_print(&n, y_index, 0, "#");
+  63              		.loc 1 162 5 is_stmt 1 view .LVU8
+  64 0014 0D4B     		ldr	r3, .L6+8
+  65 0016 0022     		movs	r2, #0
+  66 0018 0B49     		ldr	r1, .L6+4
+  67 001a 0988     		ldrh	r1, [r1]
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 5
+
+
+  68 001c 0C48     		ldr	r0, .L6+12
+  69 001e FFF7FEFF 		bl	n_print
+  70              	.LVL2:
+ 163:Src/main.c    ****     HAL_Delay(500);
+  71              		.loc 1 163 5 view .LVU9
+  72 0022 4FF4FA70 		mov	r0, #500
+  73 0026 FFF7FEFF 		bl	HAL_Delay
+  74              	.LVL3:
+ 157:Src/main.c    ****   while (1)
+  75              		.loc 1 157 9 view .LVU10
+  76              	.L3:
+ 157:Src/main.c    ****   while (1)
+  77              		.loc 1 157 3 view .LVU11
+ 159:Src/main.c    ****     y_index++;
+  78              		.loc 1 159 5 view .LVU12
+  79 002a 074C     		ldr	r4, .L6+4
+  80 002c 094B     		ldr	r3, .L6+16
+  81 002e 0022     		movs	r2, #0
+  82 0030 2188     		ldrh	r1, [r4]
+  83 0032 0748     		ldr	r0, .L6+12
+  84 0034 FFF7FEFF 		bl	n_print
+  85              	.LVL4:
+ 160:Src/main.c    ****     if (y_index > 5) y_index = 1;
+  86              		.loc 1 160 5 view .LVU13
+ 160:Src/main.c    ****     if (y_index > 5) y_index = 1;
+  87              		.loc 1 160 12 is_stmt 0 view .LVU14
+  88 0038 2368     		ldr	r3, [r4]
+  89 003a 0133     		adds	r3, r3, #1
+  90 003c 2360     		str	r3, [r4]
+ 161:Src/main.c    ****     n_print(&n, y_index, 0, "#");
+  91              		.loc 1 161 5 is_stmt 1 view .LVU15
+ 161:Src/main.c    ****     n_print(&n, y_index, 0, "#");
+  92              		.loc 1 161 8 is_stmt 0 view .LVU16
+  93 003e 052B     		cmp	r3, #5
+  94 0040 E6DC     		bgt	.L5
+  95 0042 E7E7     		b	.L2
+  96              	.L7:
+  97              		.align	2
+  98              	.L6:
+  99 0044 00000000 		.word	x_index
+ 100 0048 00000000 		.word	y_index
+ 101 004c 04000000 		.word	.LC1
+ 102 0050 00000000 		.word	n
+ 103 0054 00000000 		.word	.LC0
+ 104              		.cfi_endproc
+ 105              	.LFE79:
+ 107              		.section	.text.MX_GPIO_Init,"ax",%progbits
+ 108              		.align	1
+ 109              		.syntax unified
+ 110              		.thumb
+ 111              		.thumb_func
+ 113              	MX_GPIO_Init:
+ 114              	.LFB85:
+ 164:Src/main.c    ****     /* USER CODE END WHILE */
+ 165:Src/main.c    **** 
+ 166:Src/main.c    ****     /* USER CODE BEGIN 3 */
+ 167:Src/main.c    ****   }
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 6
+
+
+ 168:Src/main.c    **** }
+ 169:Src/main.c    **** 
+ 170:Src/main.c    **** void update_score(void)
+ 171:Src/main.c    **** {
+ 172:Src/main.c    ****   score++;
+ 173:Src/main.c    ****   char buffer[10] = {0};
+ 174:Src/main.c    ****   sprintf(buffer, "%d", score);
+ 175:Src/main.c    ****   n_print(&n, 0, 60, buffer);
+ 176:Src/main.c    **** }
+ 177:Src/main.c    **** 
+ 178:Src/main.c    **** void button_task(void* args)
+ 179:Src/main.c    **** {
+ 180:Src/main.c    ****   while (1)
+ 181:Src/main.c    ****   {
+ 182:Src/main.c    ****     if (read_btn_rt() == 1)
+ 183:Src/main.c    ****     {
+ 184:Src/main.c    ****       n_pos(&n, 5, x_index);
+ 185:Src/main.c    ****       n_raw_print(&n, 0b00000000);
+ 186:Src/main.c    ****       x_index++;
+ 187:Src/main.c    ****       if (x_index > 75) x_index = 75;
+ 188:Src/main.c    ****       n_pos(&n, 5, x_index);
+ 189:Src/main.c    ****       for (int i = x_index; i < (x_index+8); i++)
+ 190:Src/main.c    ****       {
+ 191:Src/main.c    ****         n_raw_print(&n, 0b11000000);
+ 192:Src/main.c    ****       }
+ 193:Src/main.c    ****     }
+ 194:Src/main.c    ****     if (read_btn_lt() == 1)
+ 195:Src/main.c    ****     {
+ 196:Src/main.c    ****       n_pos(&n, 5, x_index+7);
+ 197:Src/main.c    ****       n_raw_print(&n, 0b00000000);
+ 198:Src/main.c    ****       x_index--;
+ 199:Src/main.c    ****       if (x_index < 1) x_index = 1;
+ 200:Src/main.c    ****       n_pos(&n, 5, x_index);
+ 201:Src/main.c    ****       for (int i = x_index; i < (x_index+8); i++)
+ 202:Src/main.c    ****       {
+ 203:Src/main.c    ****         n_raw_print(&n, 0b11000000);
+ 204:Src/main.c    ****       }
+ 205:Src/main.c    ****     }
+ 206:Src/main.c    ****     if ((y_index == 5) && (x_index == 1))
+ 207:Src/main.c    ****     {
+ 208:Src/main.c    ****       n_print(&n, y_index, 0, " ");
+ 209:Src/main.c    ****       y_index = 0;
+ 210:Src/main.c    ****       n_pos(&n, 5, x_index);
+ 211:Src/main.c    ****       for (int i = x_index; i < (x_index+8); i++)
+ 212:Src/main.c    ****       {
+ 213:Src/main.c    ****         n_raw_print(&n, 0b11000000);
+ 214:Src/main.c    ****       }
+ 215:Src/main.c    ****       update_score();
+ 216:Src/main.c    ****     }
+ 217:Src/main.c    ****   }
+ 218:Src/main.c    **** }
+ 219:Src/main.c    **** 
+ 220:Src/main.c    **** /* USER CODE END 0 */
+ 221:Src/main.c    **** 
+ 222:Src/main.c    **** /**
+ 223:Src/main.c    ****   * @brief  The application entry point.
+ 224:Src/main.c    ****   * @retval int
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 7
+
+
+ 225:Src/main.c    ****   */
+ 226:Src/main.c    **** int main(void)
+ 227:Src/main.c    **** {
+ 228:Src/main.c    ****   /* USER CODE BEGIN 1 */
+ 229:Src/main.c    **** 
+ 230:Src/main.c    ****   /* USER CODE END 1 */
+ 231:Src/main.c    **** 
+ 232:Src/main.c    ****   /* MCU Configuration--------------------------------------------------------*/
+ 233:Src/main.c    **** 
+ 234:Src/main.c    ****   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+ 235:Src/main.c    ****   HAL_Init();
+ 236:Src/main.c    **** 
+ 237:Src/main.c    ****   /* USER CODE BEGIN Init */
+ 238:Src/main.c    **** 
+ 239:Src/main.c    ****   /* USER CODE END Init */
+ 240:Src/main.c    **** 
+ 241:Src/main.c    ****   /* Configure the system clock */
+ 242:Src/main.c    ****   SystemClock_Config();
+ 243:Src/main.c    **** 
+ 244:Src/main.c    ****   /* USER CODE BEGIN SysInit */
+ 245:Src/main.c    **** 
+ 246:Src/main.c    ****   /* USER CODE END SysInit */
+ 247:Src/main.c    **** 
+ 248:Src/main.c    ****   /* Initialize all configured peripherals */
+ 249:Src/main.c    ****   MX_GPIO_Init();
+ 250:Src/main.c    ****   MX_SPI1_Init();
+ 251:Src/main.c    ****   /* USER CODE BEGIN 2 */
+ 252:Src/main.c    **** 
+ 253:Src/main.c    ****   n_init(&n);
+ 254:Src/main.c    ****   n_clear(&n);
+ 255:Src/main.c    **** 
+ 256:Src/main.c    **** /*   for (int i = 0; i < 84; i++)
+ 257:Src/main.c    ****   {
+ 258:Src/main.c    ****     n_raw_print(&n, 0x01);
+ 259:Src/main.c    ****   }
+ 260:Src/main.c    ****   for (int i = 0; i < 6; i++)
+ 261:Src/main.c    ****   {
+ 262:Src/main.c    ****     n_pos(&n, i, 0);
+ 263:Src/main.c    ****     n_raw_print(&n, 0xFF);
+ 264:Src/main.c    ****   }
+ 265:Src/main.c    ****   for (int i = 0; i < 83; i++)
+ 266:Src/main.c    ****   {
+ 267:Src/main.c    ****     n_raw_print(&n, 0x80);
+ 268:Src/main.c    ****   }
+ 269:Src/main.c    ****   for (int i = 0; i < 6; i++)
+ 270:Src/main.c    ****   {
+ 271:Src/main.c    ****     n_pos(&n, i, 83);
+ 272:Src/main.c    ****     n_raw_print(&n, 0xFF);
+ 273:Src/main.c    ****   }
+ 274:Src/main.c    ****  */
+ 275:Src/main.c    ****   n_pos(&n, 5, 38);
+ 276:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 277:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 278:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 279:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 280:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 281:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 8
+
+
+ 282:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 283:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 284:Src/main.c    ****   update_score();
+ 285:Src/main.c    **** 
+ 286:Src/main.c    **** /*   n_pos(&n, 5, 75);
+ 287:Src/main.c    ****   n_raw_print(&n, 0b10000011);
+ 288:Src/main.c    ****   n_raw_print(&n, 0b10000011);
+ 289:Src/main.c    ****   n_raw_print(&n, 0b10000011);
+ 290:Src/main.c    ****   n_raw_print(&n, 0b10000011);
+ 291:Src/main.c    ****   n_raw_print(&n, 0b10000011);
+ 292:Src/main.c    ****   n_raw_print(&n, 0b10000011);
+ 293:Src/main.c    ****   n_raw_print(&n, 0b10000011);
+ 294:Src/main.c    ****   n_raw_print(&n, 0b10000011); */
+ 295:Src/main.c    **** 
+ 296:Src/main.c    ****   //snake_start_screen(&n, &s);
+ 297:Src/main.c    ****   /* USER CODE END 2 */
+ 298:Src/main.c    **** 
+ 299:Src/main.c    ****   /* Init scheduler */
+ 300:Src/main.c    ****   osKernelInitialize();
+ 301:Src/main.c    ****   /* Create the mutex(es) */
+ 302:Src/main.c    ****   /* creation of SPI_MUTEX */
+ 303:Src/main.c    ****   SPI_MUTEXHandle = osMutexNew(&SPI_MUTEX_attributes);
+ 304:Src/main.c    **** 
+ 305:Src/main.c    ****   /* USER CODE BEGIN RTOS_MUTEX */
+ 306:Src/main.c    ****   /* add mutexes, ... */
+ 307:Src/main.c    ****   /* USER CODE END RTOS_MUTEX */
+ 308:Src/main.c    **** 
+ 309:Src/main.c    ****   /* USER CODE BEGIN RTOS_SEMAPHORES */
+ 310:Src/main.c    ****   /* add semaphores, ... */
+ 311:Src/main.c    ****   /* USER CODE END RTOS_SEMAPHORES */
+ 312:Src/main.c    **** 
+ 313:Src/main.c    ****   /* USER CODE BEGIN RTOS_TIMERS */
+ 314:Src/main.c    ****   /* start timers, add new ones, ... */
+ 315:Src/main.c    ****   /* USER CODE END RTOS_TIMERS */
+ 316:Src/main.c    **** 
+ 317:Src/main.c    ****   /* USER CODE BEGIN RTOS_QUEUES */
+ 318:Src/main.c    ****   /* add queues, ... */
+ 319:Src/main.c    ****   /* USER CODE END RTOS_QUEUES */
+ 320:Src/main.c    **** 
+ 321:Src/main.c    ****   /* Create the thread(s) */
+ 322:Src/main.c    ****   /* creation of defaultTask */
+ 323:Src/main.c    ****   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+ 324:Src/main.c    ****   
+ 325:Src/main.c    **** 
+ 326:Src/main.c    ****   /* USER CODE BEGIN RTOS_THREADS */
+ 327:Src/main.c    ****   lcd_task_handle    = osThreadNew(lcd_task, NULL, &lcd_task_handle_attributes);
+ 328:Src/main.c    ****   button_task_handle = osThreadNew(button_task, NULL, &button_task_handle_attributes);
+ 329:Src/main.c    ****   /* USER CODE END RTOS_THREADS */
+ 330:Src/main.c    **** 
+ 331:Src/main.c    ****   /* USER CODE BEGIN RTOS_EVENTS */
+ 332:Src/main.c    ****   /* add events, ... */
+ 333:Src/main.c    ****   /* USER CODE END RTOS_EVENTS */
+ 334:Src/main.c    **** 
+ 335:Src/main.c    ****   /* Start scheduler */
+ 336:Src/main.c    ****   //osKernelStart();
+ 337:Src/main.c    **** 
+ 338:Src/main.c    ****   /* We should never get here as control is now taken by the scheduler */
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 9
+
+
+ 339:Src/main.c    ****   /* Infinite loop */
+ 340:Src/main.c    ****   /* USER CODE BEGIN WHILE */
+ 341:Src/main.c    ****   while (1)
+ 342:Src/main.c    ****   {
+ 343:Src/main.c    ****     /* USER CODE END WHILE */
+ 344:Src/main.c    **** 
+ 345:Src/main.c    ****     /* USER CODE BEGIN 3 */
+ 346:Src/main.c    ****   }
+ 347:Src/main.c    ****   /* USER CODE END 3 */
+ 348:Src/main.c    **** }
+ 349:Src/main.c    **** 
+ 350:Src/main.c    **** /**
+ 351:Src/main.c    ****   * @brief System Clock Configuration
+ 352:Src/main.c    ****   * @retval None
+ 353:Src/main.c    ****   */
+ 354:Src/main.c    **** void SystemClock_Config(void)
+ 355:Src/main.c    **** {
+ 356:Src/main.c    ****   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+ 357:Src/main.c    ****   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+ 358:Src/main.c    **** 
+ 359:Src/main.c    ****   /** Initializes the RCC Oscillators according to the specified parameters
+ 360:Src/main.c    ****   * in the RCC_OscInitTypeDef structure.
+ 361:Src/main.c    ****   */
+ 362:Src/main.c    ****   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+ 363:Src/main.c    ****   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+ 364:Src/main.c    ****   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+ 365:Src/main.c    ****   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+ 366:Src/main.c    ****   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+ 367:Src/main.c    ****   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+ 368:Src/main.c    ****   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+ 369:Src/main.c    ****   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+ 370:Src/main.c    ****   {
+ 371:Src/main.c    ****     Error_Handler();
+ 372:Src/main.c    ****   }
+ 373:Src/main.c    **** 
+ 374:Src/main.c    ****   /** Initializes the CPU, AHB and APB buses clocks
+ 375:Src/main.c    ****   */
+ 376:Src/main.c    ****   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+ 377:Src/main.c    ****                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+ 378:Src/main.c    ****   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+ 379:Src/main.c    ****   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+ 380:Src/main.c    ****   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+ 381:Src/main.c    ****   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+ 382:Src/main.c    **** 
+ 383:Src/main.c    ****   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+ 384:Src/main.c    ****   {
+ 385:Src/main.c    ****     Error_Handler();
+ 386:Src/main.c    ****   }
+ 387:Src/main.c    **** }
+ 388:Src/main.c    **** 
+ 389:Src/main.c    **** /**
+ 390:Src/main.c    ****   * @brief SPI1 Initialization Function
+ 391:Src/main.c    ****   * @param None
+ 392:Src/main.c    ****   * @retval None
+ 393:Src/main.c    ****   */
+ 394:Src/main.c    **** static void MX_SPI1_Init(void)
+ 395:Src/main.c    **** {
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 10
+
+
+ 396:Src/main.c    **** 
+ 397:Src/main.c    ****   /* USER CODE BEGIN SPI1_Init 0 */
+ 398:Src/main.c    **** 
+ 399:Src/main.c    ****   /* USER CODE END SPI1_Init 0 */
+ 400:Src/main.c    **** 
+ 401:Src/main.c    ****   /* USER CODE BEGIN SPI1_Init 1 */
+ 402:Src/main.c    **** 
+ 403:Src/main.c    ****   /* USER CODE END SPI1_Init 1 */
+ 404:Src/main.c    ****   /* SPI1 parameter configuration*/
+ 405:Src/main.c    ****   hspi1.Instance = SPI1;
+ 406:Src/main.c    ****   hspi1.Init.Mode = SPI_MODE_MASTER;
+ 407:Src/main.c    ****   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+ 408:Src/main.c    ****   hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+ 409:Src/main.c    ****   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
+ 410:Src/main.c    ****   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+ 411:Src/main.c    ****   hspi1.Init.NSS = SPI_NSS_SOFT;
+ 412:Src/main.c    ****   hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+ 413:Src/main.c    ****   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
+ 414:Src/main.c    ****   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
+ 415:Src/main.c    ****   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+ 416:Src/main.c    ****   hspi1.Init.CRCPolynomial = 10;
+ 417:Src/main.c    ****   if (HAL_SPI_Init(&hspi1) != HAL_OK)
+ 418:Src/main.c    ****   {
+ 419:Src/main.c    ****     Error_Handler();
+ 420:Src/main.c    ****   }
+ 421:Src/main.c    ****   /* USER CODE BEGIN SPI1_Init 2 */
+ 422:Src/main.c    **** 
+ 423:Src/main.c    ****   /* USER CODE END SPI1_Init 2 */
+ 424:Src/main.c    **** 
+ 425:Src/main.c    **** }
+ 426:Src/main.c    **** 
+ 427:Src/main.c    **** /**
+ 428:Src/main.c    ****   * @brief GPIO Initialization Function
+ 429:Src/main.c    ****   * @param None
+ 430:Src/main.c    ****   * @retval None
+ 431:Src/main.c    ****   */
+ 432:Src/main.c    **** static void MX_GPIO_Init(void)
+ 433:Src/main.c    **** {
+ 115              		.loc 1 433 1 is_stmt 1 view -0
+ 116              		.cfi_startproc
+ 117              		@ args = 0, pretend = 0, frame = 32
+ 118              		@ frame_needed = 0, uses_anonymous_args = 0
+ 119 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 120              		.cfi_def_cfa_offset 28
+ 121              		.cfi_offset 4, -28
+ 122              		.cfi_offset 5, -24
+ 123              		.cfi_offset 6, -20
+ 124              		.cfi_offset 7, -16
+ 125              		.cfi_offset 8, -12
+ 126              		.cfi_offset 9, -8
+ 127              		.cfi_offset 14, -4
+ 128 0004 89B0     		sub	sp, sp, #36
+ 129              		.cfi_def_cfa_offset 64
+ 434:Src/main.c    ****   GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 130              		.loc 1 434 3 view .LVU18
+ 131              		.loc 1 434 20 is_stmt 0 view .LVU19
+ 132 0006 0024     		movs	r4, #0
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 11
+
+
+ 133 0008 0494     		str	r4, [sp, #16]
+ 134 000a 0594     		str	r4, [sp, #20]
+ 135 000c 0694     		str	r4, [sp, #24]
+ 136 000e 0794     		str	r4, [sp, #28]
+ 435:Src/main.c    **** /* USER CODE BEGIN MX_GPIO_Init_1 */
+ 436:Src/main.c    **** /* USER CODE END MX_GPIO_Init_1 */
+ 437:Src/main.c    **** 
+ 438:Src/main.c    ****   /* GPIO Ports Clock Enable */
+ 439:Src/main.c    ****   __HAL_RCC_GPIOC_CLK_ENABLE();
+ 137              		.loc 1 439 3 is_stmt 1 view .LVU20
+ 138              	.LBB4:
+ 139              		.loc 1 439 3 view .LVU21
+ 140              		.loc 1 439 3 view .LVU22
+ 141 0010 384B     		ldr	r3, .L10
+ 142 0012 9A69     		ldr	r2, [r3, #24]
+ 143 0014 42F01002 		orr	r2, r2, #16
+ 144 0018 9A61     		str	r2, [r3, #24]
+ 145              		.loc 1 439 3 view .LVU23
+ 146 001a 9A69     		ldr	r2, [r3, #24]
+ 147 001c 02F01002 		and	r2, r2, #16
+ 148 0020 0092     		str	r2, [sp]
+ 149              		.loc 1 439 3 view .LVU24
+ 150 0022 009A     		ldr	r2, [sp]
+ 151              	.LBE4:
+ 152              		.loc 1 439 3 view .LVU25
+ 440:Src/main.c    ****   __HAL_RCC_GPIOD_CLK_ENABLE();
+ 153              		.loc 1 440 3 view .LVU26
+ 154              	.LBB5:
+ 155              		.loc 1 440 3 view .LVU27
+ 156              		.loc 1 440 3 view .LVU28
+ 157 0024 9A69     		ldr	r2, [r3, #24]
+ 158 0026 42F02002 		orr	r2, r2, #32
+ 159 002a 9A61     		str	r2, [r3, #24]
+ 160              		.loc 1 440 3 view .LVU29
+ 161 002c 9A69     		ldr	r2, [r3, #24]
+ 162 002e 02F02002 		and	r2, r2, #32
+ 163 0032 0192     		str	r2, [sp, #4]
+ 164              		.loc 1 440 3 view .LVU30
+ 165 0034 019A     		ldr	r2, [sp, #4]
+ 166              	.LBE5:
+ 167              		.loc 1 440 3 view .LVU31
+ 441:Src/main.c    ****   __HAL_RCC_GPIOA_CLK_ENABLE();
+ 168              		.loc 1 441 3 view .LVU32
+ 169              	.LBB6:
+ 170              		.loc 1 441 3 view .LVU33
+ 171              		.loc 1 441 3 view .LVU34
+ 172 0036 9A69     		ldr	r2, [r3, #24]
+ 173 0038 42F00402 		orr	r2, r2, #4
+ 174 003c 9A61     		str	r2, [r3, #24]
+ 175              		.loc 1 441 3 view .LVU35
+ 176 003e 9A69     		ldr	r2, [r3, #24]
+ 177 0040 02F00402 		and	r2, r2, #4
+ 178 0044 0292     		str	r2, [sp, #8]
+ 179              		.loc 1 441 3 view .LVU36
+ 180 0046 029A     		ldr	r2, [sp, #8]
+ 181              	.LBE6:
+ 182              		.loc 1 441 3 view .LVU37
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 12
+
+
+ 442:Src/main.c    ****   __HAL_RCC_GPIOB_CLK_ENABLE();
+ 183              		.loc 1 442 3 view .LVU38
+ 184              	.LBB7:
+ 185              		.loc 1 442 3 view .LVU39
+ 186              		.loc 1 442 3 view .LVU40
+ 187 0048 9A69     		ldr	r2, [r3, #24]
+ 188 004a 42F00802 		orr	r2, r2, #8
+ 189 004e 9A61     		str	r2, [r3, #24]
+ 190              		.loc 1 442 3 view .LVU41
+ 191 0050 9B69     		ldr	r3, [r3, #24]
+ 192 0052 03F00803 		and	r3, r3, #8
+ 193 0056 0393     		str	r3, [sp, #12]
+ 194              		.loc 1 442 3 view .LVU42
+ 195 0058 039B     		ldr	r3, [sp, #12]
+ 196              	.LBE7:
+ 197              		.loc 1 442 3 view .LVU43
+ 443:Src/main.c    **** 
+ 444:Src/main.c    ****   /*Configure GPIO pin Output Level */
+ 445:Src/main.c    ****   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+ 198              		.loc 1 445 3 view .LVU44
+ 199 005a DFF89C90 		ldr	r9, .L10+4
+ 200 005e 2246     		mov	r2, r4
+ 201 0060 4FF40051 		mov	r1, #8192
+ 202 0064 4846     		mov	r0, r9
+ 203 0066 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 204              	.LVL5:
+ 446:Src/main.c    **** 
+ 447:Src/main.c    ****   /*Configure GPIO pin Output Level */
+ 448:Src/main.c    ****   HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_RESET);
+ 205              		.loc 1 448 3 view .LVU45
+ 206 006a 244D     		ldr	r5, .L10+8
+ 207 006c 2246     		mov	r2, r4
+ 208 006e 1021     		movs	r1, #16
+ 209 0070 2846     		mov	r0, r5
+ 210 0072 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 211              	.LVL6:
+ 449:Src/main.c    **** 
+ 450:Src/main.c    ****   /*Configure GPIO pin Output Level */
+ 451:Src/main.c    ****   HAL_GPIO_WritePin(GPIOB, N_DC_Pin|N_RST_Pin, GPIO_PIN_RESET);
+ 212              		.loc 1 451 3 view .LVU46
+ 213 0076 224E     		ldr	r6, .L10+12
+ 214 0078 2246     		mov	r2, r4
+ 215 007a 0321     		movs	r1, #3
+ 216 007c 3046     		mov	r0, r6
+ 217 007e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 218              	.LVL7:
+ 452:Src/main.c    **** 
+ 453:Src/main.c    ****   /*Configure GPIO pin : LED_Pin */
+ 454:Src/main.c    ****   GPIO_InitStruct.Pin = LED_Pin;
+ 219              		.loc 1 454 3 view .LVU47
+ 220              		.loc 1 454 23 is_stmt 0 view .LVU48
+ 221 0082 4FF40053 		mov	r3, #8192
+ 222 0086 0493     		str	r3, [sp, #16]
+ 455:Src/main.c    ****   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+ 223              		.loc 1 455 3 is_stmt 1 view .LVU49
+ 224              		.loc 1 455 24 is_stmt 0 view .LVU50
+ 225 0088 4FF00108 		mov	r8, #1
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 13
+
+
+ 226 008c CDF81480 		str	r8, [sp, #20]
+ 456:Src/main.c    ****   GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 227              		.loc 1 456 3 is_stmt 1 view .LVU51
+ 228              		.loc 1 456 24 is_stmt 0 view .LVU52
+ 229 0090 0694     		str	r4, [sp, #24]
+ 457:Src/main.c    ****   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+ 230              		.loc 1 457 3 is_stmt 1 view .LVU53
+ 231              		.loc 1 457 25 is_stmt 0 view .LVU54
+ 232 0092 0227     		movs	r7, #2
+ 233 0094 0797     		str	r7, [sp, #28]
+ 458:Src/main.c    ****   HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
+ 234              		.loc 1 458 3 is_stmt 1 view .LVU55
+ 235 0096 04A9     		add	r1, sp, #16
+ 236 0098 4846     		mov	r0, r9
+ 237 009a FFF7FEFF 		bl	HAL_GPIO_Init
+ 238              	.LVL8:
+ 459:Src/main.c    **** 
+ 460:Src/main.c    ****   /*Configure GPIO pin : SPI1_CS_Pin */
+ 461:Src/main.c    ****   GPIO_InitStruct.Pin = SPI1_CS_Pin;
+ 239              		.loc 1 461 3 view .LVU56
+ 240              		.loc 1 461 23 is_stmt 0 view .LVU57
+ 241 009e 1023     		movs	r3, #16
+ 242 00a0 0493     		str	r3, [sp, #16]
+ 462:Src/main.c    ****   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+ 243              		.loc 1 462 3 is_stmt 1 view .LVU58
+ 244              		.loc 1 462 24 is_stmt 0 view .LVU59
+ 245 00a2 CDF81480 		str	r8, [sp, #20]
+ 463:Src/main.c    ****   GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 246              		.loc 1 463 3 is_stmt 1 view .LVU60
+ 247              		.loc 1 463 24 is_stmt 0 view .LVU61
+ 248 00a6 0694     		str	r4, [sp, #24]
+ 464:Src/main.c    ****   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+ 249              		.loc 1 464 3 is_stmt 1 view .LVU62
+ 250              		.loc 1 464 25 is_stmt 0 view .LVU63
+ 251 00a8 0797     		str	r7, [sp, #28]
+ 465:Src/main.c    ****   HAL_GPIO_Init(SPI1_CS_GPIO_Port, &GPIO_InitStruct);
+ 252              		.loc 1 465 3 is_stmt 1 view .LVU64
+ 253 00aa 0DEB0301 		add	r1, sp, r3
+ 254 00ae 2846     		mov	r0, r5
+ 255 00b0 FFF7FEFF 		bl	HAL_GPIO_Init
+ 256              	.LVL9:
+ 466:Src/main.c    **** 
+ 467:Src/main.c    ****   /*Configure GPIO pins : N_DC_Pin N_RST_Pin */
+ 468:Src/main.c    ****   GPIO_InitStruct.Pin = N_DC_Pin|N_RST_Pin;
+ 257              		.loc 1 468 3 view .LVU65
+ 258              		.loc 1 468 23 is_stmt 0 view .LVU66
+ 259 00b4 0323     		movs	r3, #3
+ 260 00b6 0493     		str	r3, [sp, #16]
+ 469:Src/main.c    ****   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+ 261              		.loc 1 469 3 is_stmt 1 view .LVU67
+ 262              		.loc 1 469 24 is_stmt 0 view .LVU68
+ 263 00b8 CDF81480 		str	r8, [sp, #20]
+ 470:Src/main.c    ****   GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 264              		.loc 1 470 3 is_stmt 1 view .LVU69
+ 265              		.loc 1 470 24 is_stmt 0 view .LVU70
+ 266 00bc 0694     		str	r4, [sp, #24]
+ 471:Src/main.c    ****   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 14
+
+
+ 267              		.loc 1 471 3 is_stmt 1 view .LVU71
+ 268              		.loc 1 471 25 is_stmt 0 view .LVU72
+ 269 00be 0797     		str	r7, [sp, #28]
+ 472:Src/main.c    ****   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+ 270              		.loc 1 472 3 is_stmt 1 view .LVU73
+ 271 00c0 04A9     		add	r1, sp, #16
+ 272 00c2 3046     		mov	r0, r6
+ 273 00c4 FFF7FEFF 		bl	HAL_GPIO_Init
+ 274              	.LVL10:
+ 473:Src/main.c    **** 
+ 474:Src/main.c    ****   /*Configure GPIO pins : BTN_UP_Pin BTN_DN_Pin BTN_LT_Pin BTN_RT_Pin */
+ 475:Src/main.c    ****   GPIO_InitStruct.Pin = BTN_UP_Pin|BTN_DN_Pin|BTN_LT_Pin|BTN_RT_Pin;
+ 275              		.loc 1 475 3 view .LVU74
+ 276              		.loc 1 475 23 is_stmt 0 view .LVU75
+ 277 00c8 4FF47043 		mov	r3, #61440
+ 278 00cc 0493     		str	r3, [sp, #16]
+ 476:Src/main.c    ****   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+ 279              		.loc 1 476 3 is_stmt 1 view .LVU76
+ 280              		.loc 1 476 24 is_stmt 0 view .LVU77
+ 281 00ce 0594     		str	r4, [sp, #20]
+ 477:Src/main.c    ****   GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 282              		.loc 1 477 3 is_stmt 1 view .LVU78
+ 283              		.loc 1 477 24 is_stmt 0 view .LVU79
+ 284 00d0 0694     		str	r4, [sp, #24]
+ 478:Src/main.c    ****   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+ 285              		.loc 1 478 3 is_stmt 1 view .LVU80
+ 286 00d2 04A9     		add	r1, sp, #16
+ 287 00d4 3046     		mov	r0, r6
+ 288 00d6 FFF7FEFF 		bl	HAL_GPIO_Init
+ 289              	.LVL11:
+ 479:Src/main.c    **** 
+ 480:Src/main.c    ****   /*Configure GPIO pin : BTN_OK_Pin */
+ 481:Src/main.c    ****   GPIO_InitStruct.Pin = BTN_OK_Pin;
+ 290              		.loc 1 481 3 view .LVU81
+ 291              		.loc 1 481 23 is_stmt 0 view .LVU82
+ 292 00da 4FF48073 		mov	r3, #256
+ 293 00de 0493     		str	r3, [sp, #16]
+ 482:Src/main.c    ****   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+ 294              		.loc 1 482 3 is_stmt 1 view .LVU83
+ 295              		.loc 1 482 24 is_stmt 0 view .LVU84
+ 296 00e0 0594     		str	r4, [sp, #20]
+ 483:Src/main.c    ****   GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 297              		.loc 1 483 3 is_stmt 1 view .LVU85
+ 298              		.loc 1 483 24 is_stmt 0 view .LVU86
+ 299 00e2 0694     		str	r4, [sp, #24]
+ 484:Src/main.c    ****   HAL_GPIO_Init(BTN_OK_GPIO_Port, &GPIO_InitStruct);
+ 300              		.loc 1 484 3 is_stmt 1 view .LVU87
+ 301 00e4 04A9     		add	r1, sp, #16
+ 302 00e6 2846     		mov	r0, r5
+ 303 00e8 FFF7FEFF 		bl	HAL_GPIO_Init
+ 304              	.LVL12:
+ 485:Src/main.c    **** 
+ 486:Src/main.c    **** /* USER CODE BEGIN MX_GPIO_Init_2 */
+ 487:Src/main.c    **** /* USER CODE END MX_GPIO_Init_2 */
+ 488:Src/main.c    **** }
+ 305              		.loc 1 488 1 is_stmt 0 view .LVU88
+ 306 00ec 09B0     		add	sp, sp, #36
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 15
+
+
+ 307              		.cfi_def_cfa_offset 28
+ 308              		@ sp needed
+ 309 00ee BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 310              	.L11:
+ 311 00f2 00BF     		.align	2
+ 312              	.L10:
+ 313 00f4 00100240 		.word	1073876992
+ 314 00f8 00100140 		.word	1073811456
+ 315 00fc 00080140 		.word	1073809408
+ 316 0100 000C0140 		.word	1073810432
+ 317              		.cfi_endproc
+ 318              	.LFE85:
+ 320              		.section	.text.StartDefaultTask,"ax",%progbits
+ 321              		.align	1
+ 322              		.global	StartDefaultTask
+ 323              		.syntax unified
+ 324              		.thumb
+ 325              		.thumb_func
+ 327              	StartDefaultTask:
+ 328              	.LFB86:
+ 489:Src/main.c    **** 
+ 490:Src/main.c    **** /* USER CODE BEGIN 4 */
+ 491:Src/main.c    **** 
+ 492:Src/main.c    **** /* USER CODE END 4 */
+ 493:Src/main.c    **** 
+ 494:Src/main.c    **** /* USER CODE BEGIN Header_StartDefaultTask */
+ 495:Src/main.c    **** /**
+ 496:Src/main.c    ****   * @brief  Function implementing the defaultTask thread.
+ 497:Src/main.c    ****   * @param  argument: Not used
+ 498:Src/main.c    ****   * @retval None
+ 499:Src/main.c    ****   */
+ 500:Src/main.c    **** /* USER CODE END Header_StartDefaultTask */
+ 501:Src/main.c    **** void StartDefaultTask(void *argument)
+ 502:Src/main.c    **** {
+ 329              		.loc 1 502 1 is_stmt 1 view -0
+ 330              		.cfi_startproc
+ 331              		@ Volatile: function does not return.
+ 332              		@ args = 0, pretend = 0, frame = 0
+ 333              		@ frame_needed = 0, uses_anonymous_args = 0
+ 334              	.LVL13:
+ 335              		.loc 1 502 1 is_stmt 0 view .LVU90
+ 336 0000 08B5     		push	{r3, lr}
+ 337              		.cfi_def_cfa_offset 8
+ 338              		.cfi_offset 3, -8
+ 339              		.cfi_offset 14, -4
+ 340              	.LVL14:
+ 341              	.L13:
+ 503:Src/main.c    ****   /* USER CODE BEGIN 5 */
+ 504:Src/main.c    ****   /* Infinite loop */
+ 505:Src/main.c    ****   for(;;)
+ 342              		.loc 1 505 3 is_stmt 1 discriminator 1 view .LVU91
+ 506:Src/main.c    ****   {
+ 507:Src/main.c    ****     HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+ 343              		.loc 1 507 5 discriminator 1 view .LVU92
+ 344 0002 4FF40051 		mov	r1, #8192
+ 345 0006 0448     		ldr	r0, .L15
+ 346 0008 FFF7FEFF 		bl	HAL_GPIO_TogglePin
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 16
+
+
+ 347              	.LVL15:
+ 508:Src/main.c    ****     osDelay(500);
+ 348              		.loc 1 508 5 discriminator 1 view .LVU93
+ 349 000c 4FF4FA70 		mov	r0, #500
+ 350 0010 FFF7FEFF 		bl	osDelay
+ 351              	.LVL16:
+ 505:Src/main.c    ****   {
+ 352              		.loc 1 505 3 discriminator 1 view .LVU94
+ 353 0014 F5E7     		b	.L13
+ 354              	.L16:
+ 355 0016 00BF     		.align	2
+ 356              	.L15:
+ 357 0018 00100140 		.word	1073811456
+ 358              		.cfi_endproc
+ 359              	.LFE86:
+ 361              		.section	.text.read_btn_ok,"ax",%progbits
+ 362              		.align	1
+ 363              		.global	read_btn_ok
+ 364              		.syntax unified
+ 365              		.thumb
+ 366              		.thumb_func
+ 368              	read_btn_ok:
+ 369              	.LFB72:
+ 117:Src/main.c    ****   HAL_Delay(10);
+ 370              		.loc 1 117 1 view -0
+ 371              		.cfi_startproc
+ 372              		@ args = 0, pretend = 0, frame = 0
+ 373              		@ frame_needed = 0, uses_anonymous_args = 0
+ 374 0000 08B5     		push	{r3, lr}
+ 375              		.cfi_def_cfa_offset 8
+ 376              		.cfi_offset 3, -8
+ 377              		.cfi_offset 14, -4
+ 118:Src/main.c    ****   return (uint8_t)HAL_GPIO_ReadPin(BTN_OK_GPIO_Port, BTN_OK_Pin);
+ 378              		.loc 1 118 3 view .LVU96
+ 379 0002 0A20     		movs	r0, #10
+ 380 0004 FFF7FEFF 		bl	HAL_Delay
+ 381              	.LVL17:
+ 119:Src/main.c    **** }
+ 382              		.loc 1 119 3 view .LVU97
+ 119:Src/main.c    **** }
+ 383              		.loc 1 119 19 is_stmt 0 view .LVU98
+ 384 0008 4FF48071 		mov	r1, #256
+ 385 000c 0148     		ldr	r0, .L19
+ 386 000e FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 387              	.LVL18:
+ 120:Src/main.c    **** uint8_t read_btn_up(void)
+ 388              		.loc 1 120 1 view .LVU99
+ 389 0012 08BD     		pop	{r3, pc}
+ 390              	.L20:
+ 391              		.align	2
+ 392              	.L19:
+ 393 0014 00080140 		.word	1073809408
+ 394              		.cfi_endproc
+ 395              	.LFE72:
+ 397              		.section	.text.read_btn_up,"ax",%progbits
+ 398              		.align	1
+ 399              		.global	read_btn_up
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 17
+
+
+ 400              		.syntax unified
+ 401              		.thumb
+ 402              		.thumb_func
+ 404              	read_btn_up:
+ 405              	.LFB73:
+ 122:Src/main.c    ****   HAL_Delay(10);
+ 406              		.loc 1 122 1 is_stmt 1 view -0
+ 407              		.cfi_startproc
+ 408              		@ args = 0, pretend = 0, frame = 0
+ 409              		@ frame_needed = 0, uses_anonymous_args = 0
+ 410 0000 08B5     		push	{r3, lr}
+ 411              		.cfi_def_cfa_offset 8
+ 412              		.cfi_offset 3, -8
+ 413              		.cfi_offset 14, -4
+ 123:Src/main.c    ****   return (uint8_t)HAL_GPIO_ReadPin(BTN_UP_GPIO_Port, BTN_UP_Pin);
+ 414              		.loc 1 123 3 view .LVU101
+ 415 0002 0A20     		movs	r0, #10
+ 416 0004 FFF7FEFF 		bl	HAL_Delay
+ 417              	.LVL19:
+ 124:Src/main.c    **** }
+ 418              		.loc 1 124 3 view .LVU102
+ 124:Src/main.c    **** }
+ 419              		.loc 1 124 19 is_stmt 0 view .LVU103
+ 420 0008 4FF48051 		mov	r1, #4096
+ 421 000c 0148     		ldr	r0, .L23
+ 422 000e FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 423              	.LVL20:
+ 125:Src/main.c    **** uint8_t read_btn_dn(void)
+ 424              		.loc 1 125 1 view .LVU104
+ 425 0012 08BD     		pop	{r3, pc}
+ 426              	.L24:
+ 427              		.align	2
+ 428              	.L23:
+ 429 0014 000C0140 		.word	1073810432
+ 430              		.cfi_endproc
+ 431              	.LFE73:
+ 433              		.section	.text.read_btn_dn,"ax",%progbits
+ 434              		.align	1
+ 435              		.global	read_btn_dn
+ 436              		.syntax unified
+ 437              		.thumb
+ 438              		.thumb_func
+ 440              	read_btn_dn:
+ 441              	.LFB74:
+ 127:Src/main.c    ****   HAL_Delay(10);
+ 442              		.loc 1 127 1 is_stmt 1 view -0
+ 443              		.cfi_startproc
+ 444              		@ args = 0, pretend = 0, frame = 0
+ 445              		@ frame_needed = 0, uses_anonymous_args = 0
+ 446 0000 08B5     		push	{r3, lr}
+ 447              		.cfi_def_cfa_offset 8
+ 448              		.cfi_offset 3, -8
+ 449              		.cfi_offset 14, -4
+ 128:Src/main.c    ****   return (uint8_t)HAL_GPIO_ReadPin(BTN_DN_GPIO_Port, BTN_DN_Pin);
+ 450              		.loc 1 128 3 view .LVU106
+ 451 0002 0A20     		movs	r0, #10
+ 452 0004 FFF7FEFF 		bl	HAL_Delay
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 18
+
+
+ 453              	.LVL21:
+ 129:Src/main.c    **** }
+ 454              		.loc 1 129 3 view .LVU107
+ 129:Src/main.c    **** }
+ 455              		.loc 1 129 19 is_stmt 0 view .LVU108
+ 456 0008 4FF40051 		mov	r1, #8192
+ 457 000c 0148     		ldr	r0, .L27
+ 458 000e FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 459              	.LVL22:
+ 130:Src/main.c    **** uint8_t read_btn_rt(void)
+ 460              		.loc 1 130 1 view .LVU109
+ 461 0012 08BD     		pop	{r3, pc}
+ 462              	.L28:
+ 463              		.align	2
+ 464              	.L27:
+ 465 0014 000C0140 		.word	1073810432
+ 466              		.cfi_endproc
+ 467              	.LFE74:
+ 469              		.section	.text.read_btn_rt,"ax",%progbits
+ 470              		.align	1
+ 471              		.global	read_btn_rt
+ 472              		.syntax unified
+ 473              		.thumb
+ 474              		.thumb_func
+ 476              	read_btn_rt:
+ 477              	.LFB75:
+ 132:Src/main.c    ****   HAL_Delay(10);
+ 478              		.loc 1 132 1 is_stmt 1 view -0
+ 479              		.cfi_startproc
+ 480              		@ args = 0, pretend = 0, frame = 0
+ 481              		@ frame_needed = 0, uses_anonymous_args = 0
+ 482 0000 08B5     		push	{r3, lr}
+ 483              		.cfi_def_cfa_offset 8
+ 484              		.cfi_offset 3, -8
+ 485              		.cfi_offset 14, -4
+ 133:Src/main.c    ****   return (uint8_t)HAL_GPIO_ReadPin(BTN_RT_GPIO_Port, BTN_RT_Pin);
+ 486              		.loc 1 133 3 view .LVU111
+ 487 0002 0A20     		movs	r0, #10
+ 488 0004 FFF7FEFF 		bl	HAL_Delay
+ 489              	.LVL23:
+ 134:Src/main.c    **** }
+ 490              		.loc 1 134 3 view .LVU112
+ 134:Src/main.c    **** }
+ 491              		.loc 1 134 19 is_stmt 0 view .LVU113
+ 492 0008 4FF40041 		mov	r1, #32768
+ 493 000c 0148     		ldr	r0, .L31
+ 494 000e FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 495              	.LVL24:
+ 135:Src/main.c    **** uint8_t read_btn_lt(void)
+ 496              		.loc 1 135 1 view .LVU114
+ 497 0012 08BD     		pop	{r3, pc}
+ 498              	.L32:
+ 499              		.align	2
+ 500              	.L31:
+ 501 0014 000C0140 		.word	1073810432
+ 502              		.cfi_endproc
+ 503              	.LFE75:
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 19
+
+
+ 505              		.section	.text.read_btn_lt,"ax",%progbits
+ 506              		.align	1
+ 507              		.global	read_btn_lt
+ 508              		.syntax unified
+ 509              		.thumb
+ 510              		.thumb_func
+ 512              	read_btn_lt:
+ 513              	.LFB76:
+ 137:Src/main.c    ****   HAL_Delay(10);
+ 514              		.loc 1 137 1 is_stmt 1 view -0
+ 515              		.cfi_startproc
+ 516              		@ args = 0, pretend = 0, frame = 0
+ 517              		@ frame_needed = 0, uses_anonymous_args = 0
+ 518 0000 08B5     		push	{r3, lr}
+ 519              		.cfi_def_cfa_offset 8
+ 520              		.cfi_offset 3, -8
+ 521              		.cfi_offset 14, -4
+ 138:Src/main.c    ****   return (uint8_t)HAL_GPIO_ReadPin(BTN_LT_GPIO_Port, BTN_LT_Pin);
+ 522              		.loc 1 138 3 view .LVU116
+ 523 0002 0A20     		movs	r0, #10
+ 524 0004 FFF7FEFF 		bl	HAL_Delay
+ 525              	.LVL25:
+ 139:Src/main.c    **** }
+ 526              		.loc 1 139 3 view .LVU117
+ 139:Src/main.c    **** }
+ 527              		.loc 1 139 19 is_stmt 0 view .LVU118
+ 528 0008 4FF48041 		mov	r1, #16384
+ 529 000c 0148     		ldr	r0, .L35
+ 530 000e FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 531              	.LVL26:
+ 140:Src/main.c    **** 
+ 532              		.loc 1 140 1 view .LVU119
+ 533 0012 08BD     		pop	{r3, pc}
+ 534              	.L36:
+ 535              		.align	2
+ 536              	.L35:
+ 537 0014 000C0140 		.word	1073810432
+ 538              		.cfi_endproc
+ 539              	.LFE76:
+ 541              		.section	.text.get_random_number,"ax",%progbits
+ 542              		.align	1
+ 543              		.global	get_random_number
+ 544              		.syntax unified
+ 545              		.thumb
+ 546              		.thumb_func
+ 548              	get_random_number:
+ 549              	.LFB77:
+ 143:Src/main.c    ****   return 5;
+ 550              		.loc 1 143 1 is_stmt 1 view -0
+ 551              		.cfi_startproc
+ 552              		@ args = 0, pretend = 0, frame = 0
+ 553              		@ frame_needed = 0, uses_anonymous_args = 0
+ 554              		@ link register save eliminated.
+ 144:Src/main.c    **** }
+ 555              		.loc 1 144 3 view .LVU121
+ 145:Src/main.c    **** 
+ 556              		.loc 1 145 1 is_stmt 0 view .LVU122
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 20
+
+
+ 557 0000 0520     		movs	r0, #5
+ 558 0002 7047     		bx	lr
+ 559              		.cfi_endproc
+ 560              	.LFE77:
+ 562              		.section	.text.generate_enemy_sprite,"ax",%progbits
+ 563              		.align	1
+ 564              		.global	generate_enemy_sprite
+ 565              		.syntax unified
+ 566              		.thumb
+ 567              		.thumb_func
+ 569              	generate_enemy_sprite:
+ 570              	.LVL27:
+ 571              	.LFB78:
+ 148:Src/main.c    ****   int x = get_random_number();
+ 572              		.loc 1 148 1 is_stmt 1 view -0
+ 573              		.cfi_startproc
+ 574              		@ args = 0, pretend = 0, frame = 0
+ 575              		@ frame_needed = 0, uses_anonymous_args = 0
+ 576              		@ link register save eliminated.
+ 149:Src/main.c    ****   enemy_sprite_t *e = (enemy_sprite_t*)malloc(1*sizeof(enemy_sprite_t));
+ 577              		.loc 1 149 3 view .LVU124
+ 150:Src/main.c    **** }
+ 578              		.loc 1 150 3 view .LVU125
+ 151:Src/main.c    **** 
+ 579              		.loc 1 151 1 is_stmt 0 view .LVU126
+ 580 0000 7047     		bx	lr
+ 581              		.cfi_endproc
+ 582              	.LFE78:
+ 584              		.section	.rodata.update_score.str1.4,"aMS",%progbits,1
+ 585              		.align	2
+ 586              	.LC2:
+ 587 0000 256400   		.ascii	"%d\000"
+ 588              		.section	.text.update_score,"ax",%progbits
+ 589              		.align	1
+ 590              		.global	update_score
+ 591              		.syntax unified
+ 592              		.thumb
+ 593              		.thumb_func
+ 595              	update_score:
+ 596              	.LFB80:
+ 171:Src/main.c    ****   score++;
+ 597              		.loc 1 171 1 is_stmt 1 view -0
+ 598              		.cfi_startproc
+ 599              		@ args = 0, pretend = 0, frame = 16
+ 600              		@ frame_needed = 0, uses_anonymous_args = 0
+ 601 0000 10B5     		push	{r4, lr}
+ 602              		.cfi_def_cfa_offset 8
+ 603              		.cfi_offset 4, -8
+ 604              		.cfi_offset 14, -4
+ 605 0002 84B0     		sub	sp, sp, #16
+ 606              		.cfi_def_cfa_offset 24
+ 172:Src/main.c    ****   char buffer[10] = {0};
+ 607              		.loc 1 172 3 view .LVU128
+ 172:Src/main.c    ****   char buffer[10] = {0};
+ 608              		.loc 1 172 8 is_stmt 0 view .LVU129
+ 609 0004 0A4B     		ldr	r3, .L41
+ 610 0006 1A68     		ldr	r2, [r3]
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 21
+
+
+ 611 0008 0132     		adds	r2, r2, #1
+ 612 000a 1A60     		str	r2, [r3]
+ 173:Src/main.c    ****   sprintf(buffer, "%d", score);
+ 613              		.loc 1 173 3 is_stmt 1 view .LVU130
+ 173:Src/main.c    ****   sprintf(buffer, "%d", score);
+ 614              		.loc 1 173 8 is_stmt 0 view .LVU131
+ 615 000c 0024     		movs	r4, #0
+ 616 000e 0194     		str	r4, [sp, #4]
+ 617 0010 0294     		str	r4, [sp, #8]
+ 618 0012 ADF80C40 		strh	r4, [sp, #12]	@ movhi
+ 174:Src/main.c    ****   n_print(&n, 0, 60, buffer);
+ 619              		.loc 1 174 3 is_stmt 1 view .LVU132
+ 620 0016 0749     		ldr	r1, .L41+4
+ 621 0018 01A8     		add	r0, sp, #4
+ 622 001a FFF7FEFF 		bl	sprintf
+ 623              	.LVL28:
+ 175:Src/main.c    **** }
+ 624              		.loc 1 175 3 view .LVU133
+ 625 001e 01AB     		add	r3, sp, #4
+ 626 0020 3C22     		movs	r2, #60
+ 627 0022 2146     		mov	r1, r4
+ 628 0024 0448     		ldr	r0, .L41+8
+ 629 0026 FFF7FEFF 		bl	n_print
+ 630              	.LVL29:
+ 176:Src/main.c    **** 
+ 631              		.loc 1 176 1 is_stmt 0 view .LVU134
+ 632 002a 04B0     		add	sp, sp, #16
+ 633              		.cfi_def_cfa_offset 8
+ 634              		@ sp needed
+ 635 002c 10BD     		pop	{r4, pc}
+ 636              	.L42:
+ 637 002e 00BF     		.align	2
+ 638              	.L41:
+ 639 0030 00000000 		.word	score
+ 640 0034 00000000 		.word	.LC2
+ 641 0038 00000000 		.word	n
+ 642              		.cfi_endproc
+ 643              	.LFE80:
+ 645              		.section	.text.button_task,"ax",%progbits
+ 646              		.align	1
+ 647              		.global	button_task
+ 648              		.syntax unified
+ 649              		.thumb
+ 650              		.thumb_func
+ 652              	button_task:
+ 653              	.LFB81:
+ 179:Src/main.c    ****   while (1)
+ 654              		.loc 1 179 1 is_stmt 1 view -0
+ 655              		.cfi_startproc
+ 656              		@ args = 0, pretend = 0, frame = 0
+ 657              		@ frame_needed = 0, uses_anonymous_args = 0
+ 658              	.LVL30:
+ 179:Src/main.c    ****   while (1)
+ 659              		.loc 1 179 1 is_stmt 0 view .LVU136
+ 660 0000 38B5     		push	{r3, r4, r5, lr}
+ 661              		.cfi_def_cfa_offset 16
+ 662              		.cfi_offset 3, -16
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 22
+
+
+ 663              		.cfi_offset 4, -12
+ 664              		.cfi_offset 5, -8
+ 665              		.cfi_offset 14, -4
+ 666              	.LVL31:
+ 667              	.L44:
+ 180:Src/main.c    ****   {
+ 668              		.loc 1 180 3 is_stmt 1 view .LVU137
+ 182:Src/main.c    ****     {
+ 669              		.loc 1 182 5 view .LVU138
+ 182:Src/main.c    ****     {
+ 670              		.loc 1 182 9 is_stmt 0 view .LVU139
+ 671 0002 FFF7FEFF 		bl	read_btn_rt
+ 672              	.LVL32:
+ 182:Src/main.c    ****     {
+ 673              		.loc 1 182 8 view .LVU140
+ 674 0006 0128     		cmp	r0, #1
+ 675 0008 24D0     		beq	.L57
+ 676              	.L45:
+ 194:Src/main.c    ****     {
+ 677              		.loc 1 194 5 is_stmt 1 view .LVU141
+ 194:Src/main.c    ****     {
+ 678              		.loc 1 194 9 is_stmt 0 view .LVU142
+ 679 000a FFF7FEFF 		bl	read_btn_lt
+ 680              	.LVL33:
+ 194:Src/main.c    ****     {
+ 681              		.loc 1 194 8 view .LVU143
+ 682 000e 0128     		cmp	r0, #1
+ 683 0010 45D0     		beq	.L58
+ 684              	.L49:
+ 206:Src/main.c    ****     {
+ 685              		.loc 1 206 5 is_stmt 1 view .LVU144
+ 206:Src/main.c    ****     {
+ 686              		.loc 1 206 18 is_stmt 0 view .LVU145
+ 687 0012 3A4B     		ldr	r3, .L60
+ 688 0014 1968     		ldr	r1, [r3]
+ 206:Src/main.c    ****     {
+ 689              		.loc 1 206 8 view .LVU146
+ 690 0016 0529     		cmp	r1, #5
+ 691 0018 F3D1     		bne	.L44
+ 206:Src/main.c    ****     {
+ 692              		.loc 1 206 36 discriminator 1 view .LVU147
+ 693 001a 394B     		ldr	r3, .L60+4
+ 694 001c 1B68     		ldr	r3, [r3]
+ 206:Src/main.c    ****     {
+ 695              		.loc 1 206 24 discriminator 1 view .LVU148
+ 696 001e 012B     		cmp	r3, #1
+ 697 0020 EFD1     		bne	.L44
+ 208:Src/main.c    ****       y_index = 0;
+ 698              		.loc 1 208 7 is_stmt 1 view .LVU149
+ 699 0022 384D     		ldr	r5, .L60+8
+ 700 0024 384B     		ldr	r3, .L60+12
+ 701 0026 0022     		movs	r2, #0
+ 702 0028 89B2     		uxth	r1, r1
+ 703 002a 2846     		mov	r0, r5
+ 704 002c FFF7FEFF 		bl	n_print
+ 705              	.LVL34:
+ 209:Src/main.c    ****       n_pos(&n, 5, x_index);
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 23
+
+
+ 706              		.loc 1 209 7 view .LVU150
+ 209:Src/main.c    ****       n_pos(&n, 5, x_index);
+ 707              		.loc 1 209 15 is_stmt 0 view .LVU151
+ 708 0030 324B     		ldr	r3, .L60
+ 709 0032 0022     		movs	r2, #0
+ 710 0034 1A60     		str	r2, [r3]
+ 210:Src/main.c    ****       for (int i = x_index; i < (x_index+8); i++)
+ 711              		.loc 1 210 7 is_stmt 1 view .LVU152
+ 712 0036 324C     		ldr	r4, .L60+4
+ 713 0038 2288     		ldrh	r2, [r4]
+ 714 003a 0521     		movs	r1, #5
+ 715 003c 2846     		mov	r0, r5
+ 716 003e FFF7FEFF 		bl	n_pos
+ 717              	.LVL35:
+ 211:Src/main.c    ****       {
+ 718              		.loc 1 211 7 view .LVU153
+ 719              	.LBB8:
+ 211:Src/main.c    ****       {
+ 720              		.loc 1 211 12 view .LVU154
+ 211:Src/main.c    ****       {
+ 721              		.loc 1 211 16 is_stmt 0 view .LVU155
+ 722 0042 2468     		ldr	r4, [r4]
+ 723              	.LVL36:
+ 724              	.L54:
+ 211:Src/main.c    ****       {
+ 725              		.loc 1 211 31 is_stmt 1 discriminator 1 view .LVU156
+ 726 0044 2E4B     		ldr	r3, .L60+4
+ 727 0046 1B68     		ldr	r3, [r3]
+ 728 0048 0733     		adds	r3, r3, #7
+ 729 004a A342     		cmp	r3, r4
+ 730 004c 4FDA     		bge	.L55
+ 211:Src/main.c    ****       {
+ 731              		.loc 1 211 31 is_stmt 0 discriminator 1 view .LVU157
+ 732              	.LBE8:
+ 215:Src/main.c    ****     }
+ 733              		.loc 1 215 7 is_stmt 1 view .LVU158
+ 734 004e FFF7FEFF 		bl	update_score
+ 735              	.LVL37:
+ 736 0052 D6E7     		b	.L44
+ 737              	.LVL38:
+ 738              	.L57:
+ 184:Src/main.c    ****       n_raw_print(&n, 0b00000000);
+ 739              		.loc 1 184 7 view .LVU159
+ 740 0054 2A4C     		ldr	r4, .L60+4
+ 741 0056 2B4D     		ldr	r5, .L60+8
+ 742 0058 2288     		ldrh	r2, [r4]
+ 743 005a 0521     		movs	r1, #5
+ 744 005c 2846     		mov	r0, r5
+ 745 005e FFF7FEFF 		bl	n_pos
+ 746              	.LVL39:
+ 185:Src/main.c    ****       x_index++;
+ 747              		.loc 1 185 7 view .LVU160
+ 748 0062 0021     		movs	r1, #0
+ 749 0064 2846     		mov	r0, r5
+ 750 0066 FFF7FEFF 		bl	n_raw_print
+ 751              	.LVL40:
+ 186:Src/main.c    ****       if (x_index > 75) x_index = 75;
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 24
+
+
+ 752              		.loc 1 186 7 view .LVU161
+ 186:Src/main.c    ****       if (x_index > 75) x_index = 75;
+ 753              		.loc 1 186 14 is_stmt 0 view .LVU162
+ 754 006a 2368     		ldr	r3, [r4]
+ 755 006c 0133     		adds	r3, r3, #1
+ 756 006e 2360     		str	r3, [r4]
+ 187:Src/main.c    ****       n_pos(&n, 5, x_index);
+ 757              		.loc 1 187 7 is_stmt 1 view .LVU163
+ 187:Src/main.c    ****       n_pos(&n, 5, x_index);
+ 758              		.loc 1 187 10 is_stmt 0 view .LVU164
+ 759 0070 4B2B     		cmp	r3, #75
+ 760 0072 01DD     		ble	.L46
+ 187:Src/main.c    ****       n_pos(&n, 5, x_index);
+ 761              		.loc 1 187 25 is_stmt 1 discriminator 1 view .LVU165
+ 187:Src/main.c    ****       n_pos(&n, 5, x_index);
+ 762              		.loc 1 187 33 is_stmt 0 discriminator 1 view .LVU166
+ 763 0074 4B22     		movs	r2, #75
+ 764 0076 2260     		str	r2, [r4]
+ 765              	.L46:
+ 188:Src/main.c    ****       for (int i = x_index; i < (x_index+8); i++)
+ 766              		.loc 1 188 7 is_stmt 1 view .LVU167
+ 767 0078 214C     		ldr	r4, .L60+4
+ 768 007a 2288     		ldrh	r2, [r4]
+ 769 007c 0521     		movs	r1, #5
+ 770 007e 2148     		ldr	r0, .L60+8
+ 771 0080 FFF7FEFF 		bl	n_pos
+ 772              	.LVL41:
+ 189:Src/main.c    ****       {
+ 773              		.loc 1 189 7 view .LVU168
+ 774              	.LBB9:
+ 189:Src/main.c    ****       {
+ 775              		.loc 1 189 12 view .LVU169
+ 189:Src/main.c    ****       {
+ 776              		.loc 1 189 16 is_stmt 0 view .LVU170
+ 777 0084 2468     		ldr	r4, [r4]
+ 778              	.LVL42:
+ 189:Src/main.c    ****       {
+ 779              		.loc 1 189 7 view .LVU171
+ 780 0086 04E0     		b	.L47
+ 781              	.L48:
+ 191:Src/main.c    ****       }
+ 782              		.loc 1 191 9 is_stmt 1 discriminator 3 view .LVU172
+ 783 0088 C021     		movs	r1, #192
+ 784 008a 1E48     		ldr	r0, .L60+8
+ 785 008c FFF7FEFF 		bl	n_raw_print
+ 786              	.LVL43:
+ 189:Src/main.c    ****       {
+ 787              		.loc 1 189 47 discriminator 3 view .LVU173
+ 788 0090 0134     		adds	r4, r4, #1
+ 789              	.LVL44:
+ 790              	.L47:
+ 189:Src/main.c    ****       {
+ 791              		.loc 1 189 31 discriminator 1 view .LVU174
+ 792 0092 1B4B     		ldr	r3, .L60+4
+ 793 0094 1B68     		ldr	r3, [r3]
+ 794 0096 0733     		adds	r3, r3, #7
+ 795 0098 A342     		cmp	r3, r4
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 25
+
+
+ 796 009a F5DA     		bge	.L48
+ 189:Src/main.c    ****       {
+ 797              		.loc 1 189 31 is_stmt 0 discriminator 1 view .LVU175
+ 798 009c B5E7     		b	.L45
+ 799              	.LVL45:
+ 800              	.L58:
+ 189:Src/main.c    ****       {
+ 801              		.loc 1 189 31 discriminator 1 view .LVU176
+ 802              	.LBE9:
+ 196:Src/main.c    ****       n_raw_print(&n, 0b00000000);
+ 803              		.loc 1 196 7 is_stmt 1 view .LVU177
+ 804 009e 184C     		ldr	r4, .L60+4
+ 805 00a0 2268     		ldr	r2, [r4]
+ 806 00a2 0732     		adds	r2, r2, #7
+ 807 00a4 174D     		ldr	r5, .L60+8
+ 808 00a6 92B2     		uxth	r2, r2
+ 809 00a8 0521     		movs	r1, #5
+ 810 00aa 2846     		mov	r0, r5
+ 811 00ac FFF7FEFF 		bl	n_pos
+ 812              	.LVL46:
+ 197:Src/main.c    ****       x_index--;
+ 813              		.loc 1 197 7 view .LVU178
+ 814 00b0 0021     		movs	r1, #0
+ 815 00b2 2846     		mov	r0, r5
+ 816 00b4 FFF7FEFF 		bl	n_raw_print
+ 817              	.LVL47:
+ 198:Src/main.c    ****       if (x_index < 1) x_index = 1;
+ 818              		.loc 1 198 7 view .LVU179
+ 198:Src/main.c    ****       if (x_index < 1) x_index = 1;
+ 819              		.loc 1 198 14 is_stmt 0 view .LVU180
+ 820 00b8 2368     		ldr	r3, [r4]
+ 821 00ba 013B     		subs	r3, r3, #1
+ 822 00bc 2360     		str	r3, [r4]
+ 199:Src/main.c    ****       n_pos(&n, 5, x_index);
+ 823              		.loc 1 199 7 is_stmt 1 view .LVU181
+ 199:Src/main.c    ****       n_pos(&n, 5, x_index);
+ 824              		.loc 1 199 10 is_stmt 0 view .LVU182
+ 825 00be 002B     		cmp	r3, #0
+ 826 00c0 07DD     		ble	.L59
+ 827              	.L50:
+ 200:Src/main.c    ****       for (int i = x_index; i < (x_index+8); i++)
+ 828              		.loc 1 200 7 is_stmt 1 view .LVU183
+ 829 00c2 0F4C     		ldr	r4, .L60+4
+ 830 00c4 2288     		ldrh	r2, [r4]
+ 831 00c6 0521     		movs	r1, #5
+ 832 00c8 0E48     		ldr	r0, .L60+8
+ 833 00ca FFF7FEFF 		bl	n_pos
+ 834              	.LVL48:
+ 201:Src/main.c    ****       {
+ 835              		.loc 1 201 7 view .LVU184
+ 836              	.LBB10:
+ 201:Src/main.c    ****       {
+ 837              		.loc 1 201 12 view .LVU185
+ 201:Src/main.c    ****       {
+ 838              		.loc 1 201 16 is_stmt 0 view .LVU186
+ 839 00ce 2468     		ldr	r4, [r4]
+ 840              	.LVL49:
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 26
+
+
+ 201:Src/main.c    ****       {
+ 841              		.loc 1 201 7 view .LVU187
+ 842 00d0 07E0     		b	.L51
+ 843              	.LVL50:
+ 844              	.L59:
+ 201:Src/main.c    ****       {
+ 845              		.loc 1 201 7 view .LVU188
+ 846              	.LBE10:
+ 199:Src/main.c    ****       n_pos(&n, 5, x_index);
+ 847              		.loc 1 199 24 is_stmt 1 discriminator 1 view .LVU189
+ 199:Src/main.c    ****       n_pos(&n, 5, x_index);
+ 848              		.loc 1 199 32 is_stmt 0 discriminator 1 view .LVU190
+ 849 00d2 0122     		movs	r2, #1
+ 850 00d4 2260     		str	r2, [r4]
+ 851 00d6 F4E7     		b	.L50
+ 852              	.LVL51:
+ 853              	.L52:
+ 854              	.LBB11:
+ 203:Src/main.c    ****       }
+ 855              		.loc 1 203 9 is_stmt 1 discriminator 3 view .LVU191
+ 856 00d8 C021     		movs	r1, #192
+ 857 00da 0A48     		ldr	r0, .L60+8
+ 858 00dc FFF7FEFF 		bl	n_raw_print
+ 859              	.LVL52:
+ 201:Src/main.c    ****       {
+ 860              		.loc 1 201 47 discriminator 3 view .LVU192
+ 861 00e0 0134     		adds	r4, r4, #1
+ 862              	.LVL53:
+ 863              	.L51:
+ 201:Src/main.c    ****       {
+ 864              		.loc 1 201 31 discriminator 1 view .LVU193
+ 865 00e2 074B     		ldr	r3, .L60+4
+ 866 00e4 1B68     		ldr	r3, [r3]
+ 867 00e6 0733     		adds	r3, r3, #7
+ 868 00e8 A342     		cmp	r3, r4
+ 869 00ea F5DA     		bge	.L52
+ 201:Src/main.c    ****       {
+ 870              		.loc 1 201 31 is_stmt 0 discriminator 1 view .LVU194
+ 871 00ec 91E7     		b	.L49
+ 872              	.LVL54:
+ 873              	.L55:
+ 201:Src/main.c    ****       {
+ 874              		.loc 1 201 31 discriminator 1 view .LVU195
+ 875              	.LBE11:
+ 876              	.LBB12:
+ 213:Src/main.c    ****       }
+ 877              		.loc 1 213 9 is_stmt 1 discriminator 3 view .LVU196
+ 878 00ee C021     		movs	r1, #192
+ 879 00f0 0448     		ldr	r0, .L60+8
+ 880 00f2 FFF7FEFF 		bl	n_raw_print
+ 881              	.LVL55:
+ 211:Src/main.c    ****       {
+ 882              		.loc 1 211 47 discriminator 3 view .LVU197
+ 883 00f6 0134     		adds	r4, r4, #1
+ 884              	.LVL56:
+ 211:Src/main.c    ****       {
+ 885              		.loc 1 211 47 is_stmt 0 discriminator 3 view .LVU198
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 27
+
+
+ 886 00f8 A4E7     		b	.L54
+ 887              	.L61:
+ 888 00fa 00BF     		.align	2
+ 889              	.L60:
+ 890 00fc 00000000 		.word	y_index
+ 891 0100 00000000 		.word	x_index
+ 892 0104 00000000 		.word	n
+ 893 0108 00000000 		.word	.LC0
+ 894              	.LBE12:
+ 895              		.cfi_endproc
+ 896              	.LFE81:
+ 898              		.section	.text.Error_Handler,"ax",%progbits
+ 899              		.align	1
+ 900              		.global	Error_Handler
+ 901              		.syntax unified
+ 902              		.thumb
+ 903              		.thumb_func
+ 905              	Error_Handler:
+ 906              	.LFB87:
+ 509:Src/main.c    ****   }
+ 510:Src/main.c    ****   /* USER CODE END 5 */
+ 511:Src/main.c    **** }
+ 512:Src/main.c    **** 
+ 513:Src/main.c    **** /**
+ 514:Src/main.c    ****   * @brief  This function is executed in case of error occurrence.
+ 515:Src/main.c    ****   * @retval None
+ 516:Src/main.c    ****   */
+ 517:Src/main.c    **** void Error_Handler(void)
+ 518:Src/main.c    **** {
+ 907              		.loc 1 518 1 is_stmt 1 view -0
+ 908              		.cfi_startproc
+ 909              		@ Volatile: function does not return.
+ 910              		@ args = 0, pretend = 0, frame = 0
+ 911              		@ frame_needed = 0, uses_anonymous_args = 0
+ 912              		@ link register save eliminated.
+ 519:Src/main.c    ****   /* USER CODE BEGIN Error_Handler_Debug */
+ 520:Src/main.c    ****   /* User can add his own implementation to report the HAL error return state */
+ 521:Src/main.c    ****   __disable_irq();
+ 913              		.loc 1 521 3 view .LVU200
+ 914              	.LBB13:
+ 915              	.LBI13:
+ 916              		.file 2 "Drivers/CMSIS/Include/cmsis_gcc.h"
+   1:Drivers/CMSIS/Include/cmsis_gcc.h **** /**************************************************************************//**
+   2:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @file     cmsis_gcc.h
+   3:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @brief    CMSIS compiler GCC header file
+   4:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @version  V5.0.4
+   5:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @date     09. April 2018
+   6:Drivers/CMSIS/Include/cmsis_gcc.h ****  ******************************************************************************/
+   7:Drivers/CMSIS/Include/cmsis_gcc.h **** /*
+   8:Drivers/CMSIS/Include/cmsis_gcc.h ****  * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
+   9:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  10:Drivers/CMSIS/Include/cmsis_gcc.h ****  * SPDX-License-Identifier: Apache-2.0
+  11:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  12:Drivers/CMSIS/Include/cmsis_gcc.h ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  13:Drivers/CMSIS/Include/cmsis_gcc.h ****  * not use this file except in compliance with the License.
+  14:Drivers/CMSIS/Include/cmsis_gcc.h ****  * You may obtain a copy of the License at
+  15:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 28
+
+
+  16:Drivers/CMSIS/Include/cmsis_gcc.h ****  * www.apache.org/licenses/LICENSE-2.0
+  17:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  18:Drivers/CMSIS/Include/cmsis_gcc.h ****  * Unless required by applicable law or agreed to in writing, software
+  19:Drivers/CMSIS/Include/cmsis_gcc.h ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  20:Drivers/CMSIS/Include/cmsis_gcc.h ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  21:Drivers/CMSIS/Include/cmsis_gcc.h ****  * See the License for the specific language governing permissions and
+  22:Drivers/CMSIS/Include/cmsis_gcc.h ****  * limitations under the License.
+  23:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+  24:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  25:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef __CMSIS_GCC_H
+  26:Drivers/CMSIS/Include/cmsis_gcc.h **** #define __CMSIS_GCC_H
+  27:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  28:Drivers/CMSIS/Include/cmsis_gcc.h **** /* ignore some GCC warnings */
+  29:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic push
+  30:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wsign-conversion"
+  31:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wconversion"
+  32:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wunused-parameter"
+  33:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  34:Drivers/CMSIS/Include/cmsis_gcc.h **** /* Fallback for __has_builtin */
+  35:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef __has_builtin
+  36:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __has_builtin(x) (0)
+  37:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  38:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  39:Drivers/CMSIS/Include/cmsis_gcc.h **** /* CMSIS compiler specific defines */
+  40:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __ASM
+  41:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __ASM                                  __asm
+  42:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  43:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __INLINE
+  44:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __INLINE                               inline
+  45:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  46:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __STATIC_INLINE
+  47:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __STATIC_INLINE                        static inline
+  48:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  49:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __STATIC_FORCEINLINE                 
+  50:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __STATIC_FORCEINLINE                   __attribute__((always_inline)) static inline
+  51:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif                                           
+  52:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __NO_RETURN
+  53:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __NO_RETURN                            __attribute__((__noreturn__))
+  54:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  55:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __USED
+  56:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __USED                                 __attribute__((used))
+  57:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  58:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __WEAK
+  59:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __WEAK                                 __attribute__((weak))
+  60:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  61:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __PACKED
+  62:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __PACKED                               __attribute__((packed, aligned(1)))
+  63:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  64:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __PACKED_STRUCT
+  65:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __PACKED_STRUCT                        struct __attribute__((packed, aligned(1)))
+  66:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  67:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __PACKED_UNION
+  68:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __PACKED_UNION                         union __attribute__((packed, aligned(1)))
+  69:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  70:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32        /* deprecated */
+  71:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  72:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 29
+
+
+  73:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  74:Drivers/CMSIS/Include/cmsis_gcc.h ****   struct __attribute__((packed)) T_UINT32 { uint32_t v; };
+  75:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  76:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT32(x)                  (((struct T_UINT32 *)(x))->v)
+  77:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  78:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT16_WRITE
+  79:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  80:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  81:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  82:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT16_WRITE { uint16_t v; };
+  83:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  84:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT16_WRITE(addr, val)    (void)((((struct T_UINT16_WRITE *)(void *)(addr))-
+  85:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  86:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT16_READ
+  87:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  88:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  89:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  90:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT16_READ { uint16_t v; };
+  91:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  92:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT16_READ(addr)          (((const struct T_UINT16_READ *)(const void *)(add
+  93:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  94:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32_WRITE
+  95:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  96:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  97:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  98:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT32_WRITE { uint32_t v; };
+  99:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+ 100:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT32_WRITE(addr, val)    (void)((((struct T_UINT32_WRITE *)(void *)(addr))-
+ 101:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 102:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32_READ
+ 103:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+ 104:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+ 105:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+ 106:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT32_READ { uint32_t v; };
+ 107:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+ 108:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT32_READ(addr)          (((const struct T_UINT32_READ *)(const void *)(add
+ 109:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 110:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __ALIGNED
+ 111:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __ALIGNED(x)                           __attribute__((aligned(x)))
+ 112:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 113:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __RESTRICT
+ 114:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __RESTRICT                             __restrict
+ 115:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 116:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 117:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 118:Drivers/CMSIS/Include/cmsis_gcc.h **** /* ###########################  Core Function Access  ########################### */
+ 119:Drivers/CMSIS/Include/cmsis_gcc.h **** /** \ingroup  CMSIS_Core_FunctionInterface
+ 120:Drivers/CMSIS/Include/cmsis_gcc.h ****     \defgroup CMSIS_Core_RegAccFunctions CMSIS Core Register Access Functions
+ 121:Drivers/CMSIS/Include/cmsis_gcc.h ****   @{
+ 122:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+ 123:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 124:Drivers/CMSIS/Include/cmsis_gcc.h **** /**
+ 125:Drivers/CMSIS/Include/cmsis_gcc.h ****   \brief   Enable IRQ Interrupts
+ 126:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details Enables IRQ interrupts by clearing the I-bit in the CPSR.
+ 127:Drivers/CMSIS/Include/cmsis_gcc.h ****            Can only be executed in Privileged modes.
+ 128:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+ 129:Drivers/CMSIS/Include/cmsis_gcc.h **** __STATIC_FORCEINLINE void __enable_irq(void)
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 30
+
+
+ 130:Drivers/CMSIS/Include/cmsis_gcc.h **** {
+ 131:Drivers/CMSIS/Include/cmsis_gcc.h ****   __ASM volatile ("cpsie i" : : : "memory");
+ 132:Drivers/CMSIS/Include/cmsis_gcc.h **** }
+ 133:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 134:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 135:Drivers/CMSIS/Include/cmsis_gcc.h **** /**
+ 136:Drivers/CMSIS/Include/cmsis_gcc.h ****   \brief   Disable IRQ Interrupts
+ 137:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details Disables IRQ interrupts by setting the I-bit in the CPSR.
+ 138:Drivers/CMSIS/Include/cmsis_gcc.h ****            Can only be executed in Privileged modes.
+ 139:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+ 140:Drivers/CMSIS/Include/cmsis_gcc.h **** __STATIC_FORCEINLINE void __disable_irq(void)
+ 917              		.loc 2 140 27 view .LVU201
+ 918              	.LBB14:
+ 141:Drivers/CMSIS/Include/cmsis_gcc.h **** {
+ 142:Drivers/CMSIS/Include/cmsis_gcc.h ****   __ASM volatile ("cpsid i" : : : "memory");
+ 919              		.loc 2 142 3 view .LVU202
+ 920              		.syntax unified
+ 921              	@ 142 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+ 922 0000 72B6     		cpsid i
+ 923              	@ 0 "" 2
+ 924              		.thumb
+ 925              		.syntax unified
+ 926              	.L63:
+ 927              	.LBE14:
+ 928              	.LBE13:
+ 522:Src/main.c    ****   while (1)
+ 929              		.loc 1 522 3 discriminator 1 view .LVU203
+ 523:Src/main.c    ****   {
+ 524:Src/main.c    ****   }
+ 930              		.loc 1 524 3 discriminator 1 view .LVU204
+ 522:Src/main.c    ****   while (1)
+ 931              		.loc 1 522 9 discriminator 1 view .LVU205
+ 932 0002 FEE7     		b	.L63
+ 933              		.cfi_endproc
+ 934              	.LFE87:
+ 936              		.section	.text.MX_SPI1_Init,"ax",%progbits
+ 937              		.align	1
+ 938              		.syntax unified
+ 939              		.thumb
+ 940              		.thumb_func
+ 942              	MX_SPI1_Init:
+ 943              	.LFB84:
+ 395:Src/main.c    **** 
+ 944              		.loc 1 395 1 view -0
+ 945              		.cfi_startproc
+ 946              		@ args = 0, pretend = 0, frame = 0
+ 947              		@ frame_needed = 0, uses_anonymous_args = 0
+ 948 0000 08B5     		push	{r3, lr}
+ 949              		.cfi_def_cfa_offset 8
+ 950              		.cfi_offset 3, -8
+ 951              		.cfi_offset 14, -4
+ 405:Src/main.c    ****   hspi1.Init.Mode = SPI_MODE_MASTER;
+ 952              		.loc 1 405 3 view .LVU207
+ 405:Src/main.c    ****   hspi1.Init.Mode = SPI_MODE_MASTER;
+ 953              		.loc 1 405 18 is_stmt 0 view .LVU208
+ 954 0002 0D48     		ldr	r0, .L68
+ 955 0004 0D4B     		ldr	r3, .L68+4
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 31
+
+
+ 956 0006 0360     		str	r3, [r0]
+ 406:Src/main.c    ****   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+ 957              		.loc 1 406 3 is_stmt 1 view .LVU209
+ 406:Src/main.c    ****   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+ 958              		.loc 1 406 19 is_stmt 0 view .LVU210
+ 959 0008 4FF48273 		mov	r3, #260
+ 960 000c 4360     		str	r3, [r0, #4]
+ 407:Src/main.c    ****   hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+ 961              		.loc 1 407 3 is_stmt 1 view .LVU211
+ 407:Src/main.c    ****   hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+ 962              		.loc 1 407 24 is_stmt 0 view .LVU212
+ 963 000e 0023     		movs	r3, #0
+ 964 0010 8360     		str	r3, [r0, #8]
+ 408:Src/main.c    ****   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
+ 965              		.loc 1 408 3 is_stmt 1 view .LVU213
+ 408:Src/main.c    ****   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
+ 966              		.loc 1 408 23 is_stmt 0 view .LVU214
+ 967 0012 C360     		str	r3, [r0, #12]
+ 409:Src/main.c    ****   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+ 968              		.loc 1 409 3 is_stmt 1 view .LVU215
+ 409:Src/main.c    ****   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+ 969              		.loc 1 409 26 is_stmt 0 view .LVU216
+ 970 0014 0361     		str	r3, [r0, #16]
+ 410:Src/main.c    ****   hspi1.Init.NSS = SPI_NSS_SOFT;
+ 971              		.loc 1 410 3 is_stmt 1 view .LVU217
+ 410:Src/main.c    ****   hspi1.Init.NSS = SPI_NSS_SOFT;
+ 972              		.loc 1 410 23 is_stmt 0 view .LVU218
+ 973 0016 4361     		str	r3, [r0, #20]
+ 411:Src/main.c    ****   hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+ 974              		.loc 1 411 3 is_stmt 1 view .LVU219
+ 411:Src/main.c    ****   hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+ 975              		.loc 1 411 18 is_stmt 0 view .LVU220
+ 976 0018 4FF40072 		mov	r2, #512
+ 977 001c 8261     		str	r2, [r0, #24]
+ 412:Src/main.c    ****   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
+ 978              		.loc 1 412 3 is_stmt 1 view .LVU221
+ 412:Src/main.c    ****   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
+ 979              		.loc 1 412 32 is_stmt 0 view .LVU222
+ 980 001e 2822     		movs	r2, #40
+ 981 0020 C261     		str	r2, [r0, #28]
+ 413:Src/main.c    ****   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
+ 982              		.loc 1 413 3 is_stmt 1 view .LVU223
+ 413:Src/main.c    ****   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
+ 983              		.loc 1 413 23 is_stmt 0 view .LVU224
+ 984 0022 0362     		str	r3, [r0, #32]
+ 414:Src/main.c    ****   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+ 985              		.loc 1 414 3 is_stmt 1 view .LVU225
+ 414:Src/main.c    ****   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+ 986              		.loc 1 414 21 is_stmt 0 view .LVU226
+ 987 0024 4362     		str	r3, [r0, #36]
+ 415:Src/main.c    ****   hspi1.Init.CRCPolynomial = 10;
+ 988              		.loc 1 415 3 is_stmt 1 view .LVU227
+ 415:Src/main.c    ****   hspi1.Init.CRCPolynomial = 10;
+ 989              		.loc 1 415 29 is_stmt 0 view .LVU228
+ 990 0026 8362     		str	r3, [r0, #40]
+ 416:Src/main.c    ****   if (HAL_SPI_Init(&hspi1) != HAL_OK)
+ 991              		.loc 1 416 3 is_stmt 1 view .LVU229
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 32
+
+
+ 416:Src/main.c    ****   if (HAL_SPI_Init(&hspi1) != HAL_OK)
+ 992              		.loc 1 416 28 is_stmt 0 view .LVU230
+ 993 0028 0A23     		movs	r3, #10
+ 994 002a C362     		str	r3, [r0, #44]
+ 417:Src/main.c    ****   {
+ 995              		.loc 1 417 3 is_stmt 1 view .LVU231
+ 417:Src/main.c    ****   {
+ 996              		.loc 1 417 7 is_stmt 0 view .LVU232
+ 997 002c FFF7FEFF 		bl	HAL_SPI_Init
+ 998              	.LVL57:
+ 417:Src/main.c    ****   {
+ 999              		.loc 1 417 6 view .LVU233
+ 1000 0030 00B9     		cbnz	r0, .L67
+ 425:Src/main.c    **** 
+ 1001              		.loc 1 425 1 view .LVU234
+ 1002 0032 08BD     		pop	{r3, pc}
+ 1003              	.L67:
+ 419:Src/main.c    ****   }
+ 1004              		.loc 1 419 5 is_stmt 1 view .LVU235
+ 1005 0034 FFF7FEFF 		bl	Error_Handler
+ 1006              	.LVL58:
+ 1007              	.L69:
+ 1008              		.align	2
+ 1009              	.L68:
+ 1010 0038 00000000 		.word	hspi1
+ 1011 003c 00300140 		.word	1073819648
+ 1012              		.cfi_endproc
+ 1013              	.LFE84:
+ 1015              		.section	.text.SystemClock_Config,"ax",%progbits
+ 1016              		.align	1
+ 1017              		.global	SystemClock_Config
+ 1018              		.syntax unified
+ 1019              		.thumb
+ 1020              		.thumb_func
+ 1022              	SystemClock_Config:
+ 1023              	.LFB83:
+ 355:Src/main.c    ****   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+ 1024              		.loc 1 355 1 view -0
+ 1025              		.cfi_startproc
+ 1026              		@ args = 0, pretend = 0, frame = 64
+ 1027              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1028 0000 00B5     		push	{lr}
+ 1029              		.cfi_def_cfa_offset 4
+ 1030              		.cfi_offset 14, -4
+ 1031 0002 91B0     		sub	sp, sp, #68
+ 1032              		.cfi_def_cfa_offset 72
+ 356:Src/main.c    ****   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+ 1033              		.loc 1 356 3 view .LVU237
+ 356:Src/main.c    ****   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+ 1034              		.loc 1 356 22 is_stmt 0 view .LVU238
+ 1035 0004 2822     		movs	r2, #40
+ 1036 0006 0021     		movs	r1, #0
+ 1037 0008 06A8     		add	r0, sp, #24
+ 1038 000a FFF7FEFF 		bl	memset
+ 1039              	.LVL59:
+ 357:Src/main.c    **** 
+ 1040              		.loc 1 357 3 is_stmt 1 view .LVU239
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 33
+
+
+ 357:Src/main.c    **** 
+ 1041              		.loc 1 357 22 is_stmt 0 view .LVU240
+ 1042 000e 0023     		movs	r3, #0
+ 1043 0010 0193     		str	r3, [sp, #4]
+ 1044 0012 0293     		str	r3, [sp, #8]
+ 1045 0014 0393     		str	r3, [sp, #12]
+ 1046 0016 0493     		str	r3, [sp, #16]
+ 1047 0018 0593     		str	r3, [sp, #20]
+ 362:Src/main.c    ****   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+ 1048              		.loc 1 362 3 is_stmt 1 view .LVU241
+ 362:Src/main.c    ****   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+ 1049              		.loc 1 362 36 is_stmt 0 view .LVU242
+ 1050 001a 0122     		movs	r2, #1
+ 1051 001c 0692     		str	r2, [sp, #24]
+ 363:Src/main.c    ****   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+ 1052              		.loc 1 363 3 is_stmt 1 view .LVU243
+ 363:Src/main.c    ****   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+ 1053              		.loc 1 363 30 is_stmt 0 view .LVU244
+ 1054 001e 4FF48033 		mov	r3, #65536
+ 1055 0022 0793     		str	r3, [sp, #28]
+ 364:Src/main.c    ****   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+ 1056              		.loc 1 364 3 is_stmt 1 view .LVU245
+ 365:Src/main.c    ****   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+ 1057              		.loc 1 365 3 view .LVU246
+ 365:Src/main.c    ****   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+ 1058              		.loc 1 365 30 is_stmt 0 view .LVU247
+ 1059 0024 0A92     		str	r2, [sp, #40]
+ 366:Src/main.c    ****   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+ 1060              		.loc 1 366 3 is_stmt 1 view .LVU248
+ 366:Src/main.c    ****   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+ 1061              		.loc 1 366 34 is_stmt 0 view .LVU249
+ 1062 0026 0222     		movs	r2, #2
+ 1063 0028 0D92     		str	r2, [sp, #52]
+ 367:Src/main.c    ****   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+ 1064              		.loc 1 367 3 is_stmt 1 view .LVU250
+ 367:Src/main.c    ****   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+ 1065              		.loc 1 367 35 is_stmt 0 view .LVU251
+ 1066 002a 0E93     		str	r3, [sp, #56]
+ 368:Src/main.c    ****   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+ 1067              		.loc 1 368 3 is_stmt 1 view .LVU252
+ 368:Src/main.c    ****   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+ 1068              		.loc 1 368 32 is_stmt 0 view .LVU253
+ 1069 002c 4FF4E013 		mov	r3, #1835008
+ 1070 0030 0F93     		str	r3, [sp, #60]
+ 369:Src/main.c    ****   {
+ 1071              		.loc 1 369 3 is_stmt 1 view .LVU254
+ 369:Src/main.c    ****   {
+ 1072              		.loc 1 369 7 is_stmt 0 view .LVU255
+ 1073 0032 06A8     		add	r0, sp, #24
+ 1074 0034 FFF7FEFF 		bl	HAL_RCC_OscConfig
+ 1075              	.LVL60:
+ 369:Src/main.c    ****   {
+ 1076              		.loc 1 369 6 view .LVU256
+ 1077 0038 80B9     		cbnz	r0, .L74
+ 376:Src/main.c    ****                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+ 1078              		.loc 1 376 3 is_stmt 1 view .LVU257
+ 376:Src/main.c    ****                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 34
+
+
+ 1079              		.loc 1 376 31 is_stmt 0 view .LVU258
+ 1080 003a 0F23     		movs	r3, #15
+ 1081 003c 0193     		str	r3, [sp, #4]
+ 378:Src/main.c    ****   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+ 1082              		.loc 1 378 3 is_stmt 1 view .LVU259
+ 378:Src/main.c    ****   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+ 1083              		.loc 1 378 34 is_stmt 0 view .LVU260
+ 1084 003e 0221     		movs	r1, #2
+ 1085 0040 0291     		str	r1, [sp, #8]
+ 379:Src/main.c    ****   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+ 1086              		.loc 1 379 3 is_stmt 1 view .LVU261
+ 379:Src/main.c    ****   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+ 1087              		.loc 1 379 35 is_stmt 0 view .LVU262
+ 1088 0042 0023     		movs	r3, #0
+ 1089 0044 0393     		str	r3, [sp, #12]
+ 380:Src/main.c    ****   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+ 1090              		.loc 1 380 3 is_stmt 1 view .LVU263
+ 380:Src/main.c    ****   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+ 1091              		.loc 1 380 36 is_stmt 0 view .LVU264
+ 1092 0046 4FF48062 		mov	r2, #1024
+ 1093 004a 0492     		str	r2, [sp, #16]
+ 381:Src/main.c    **** 
+ 1094              		.loc 1 381 3 is_stmt 1 view .LVU265
+ 381:Src/main.c    **** 
+ 1095              		.loc 1 381 36 is_stmt 0 view .LVU266
+ 1096 004c 0593     		str	r3, [sp, #20]
+ 383:Src/main.c    ****   {
+ 1097              		.loc 1 383 3 is_stmt 1 view .LVU267
+ 383:Src/main.c    ****   {
+ 1098              		.loc 1 383 7 is_stmt 0 view .LVU268
+ 1099 004e 01A8     		add	r0, sp, #4
+ 1100 0050 FFF7FEFF 		bl	HAL_RCC_ClockConfig
+ 1101              	.LVL61:
+ 383:Src/main.c    ****   {
+ 1102              		.loc 1 383 6 view .LVU269
+ 1103 0054 20B9     		cbnz	r0, .L75
+ 387:Src/main.c    **** 
+ 1104              		.loc 1 387 1 view .LVU270
+ 1105 0056 11B0     		add	sp, sp, #68
+ 1106              		.cfi_remember_state
+ 1107              		.cfi_def_cfa_offset 4
+ 1108              		@ sp needed
+ 1109 0058 5DF804FB 		ldr	pc, [sp], #4
+ 1110              	.L74:
+ 1111              		.cfi_restore_state
+ 371:Src/main.c    ****   }
+ 1112              		.loc 1 371 5 is_stmt 1 view .LVU271
+ 1113 005c FFF7FEFF 		bl	Error_Handler
+ 1114              	.LVL62:
+ 1115              	.L75:
+ 385:Src/main.c    ****   }
+ 1116              		.loc 1 385 5 view .LVU272
+ 1117 0060 FFF7FEFF 		bl	Error_Handler
+ 1118              	.LVL63:
+ 1119              		.cfi_endproc
+ 1120              	.LFE83:
+ 1122              		.section	.text.main,"ax",%progbits
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 35
+
+
+ 1123              		.align	1
+ 1124              		.global	main
+ 1125              		.syntax unified
+ 1126              		.thumb
+ 1127              		.thumb_func
+ 1129              	main:
+ 1130              	.LFB82:
+ 227:Src/main.c    ****   /* USER CODE BEGIN 1 */
+ 1131              		.loc 1 227 1 view -0
+ 1132              		.cfi_startproc
+ 1133              		@ Volatile: function does not return.
+ 1134              		@ args = 0, pretend = 0, frame = 0
+ 1135              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1136 0000 08B5     		push	{r3, lr}
+ 1137              		.cfi_def_cfa_offset 8
+ 1138              		.cfi_offset 3, -8
+ 1139              		.cfi_offset 14, -4
+ 235:Src/main.c    **** 
+ 1140              		.loc 1 235 3 view .LVU274
+ 1141 0002 FFF7FEFF 		bl	HAL_Init
+ 1142              	.LVL64:
+ 242:Src/main.c    **** 
+ 1143              		.loc 1 242 3 view .LVU275
+ 1144 0006 FFF7FEFF 		bl	SystemClock_Config
+ 1145              	.LVL65:
+ 249:Src/main.c    ****   MX_SPI1_Init();
+ 1146              		.loc 1 249 3 view .LVU276
+ 1147 000a FFF7FEFF 		bl	MX_GPIO_Init
+ 1148              	.LVL66:
+ 250:Src/main.c    ****   /* USER CODE BEGIN 2 */
+ 1149              		.loc 1 250 3 view .LVU277
+ 1150 000e FFF7FEFF 		bl	MX_SPI1_Init
+ 1151              	.LVL67:
+ 253:Src/main.c    ****   n_clear(&n);
+ 1152              		.loc 1 253 3 view .LVU278
+ 1153 0012 254C     		ldr	r4, .L79
+ 1154 0014 2046     		mov	r0, r4
+ 1155 0016 FFF7FEFF 		bl	n_init
+ 1156              	.LVL68:
+ 254:Src/main.c    **** 
+ 1157              		.loc 1 254 3 view .LVU279
+ 1158 001a 2046     		mov	r0, r4
+ 1159 001c FFF7FEFF 		bl	n_clear
+ 1160              	.LVL69:
+ 275:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 1161              		.loc 1 275 3 view .LVU280
+ 1162 0020 2622     		movs	r2, #38
+ 1163 0022 0521     		movs	r1, #5
+ 1164 0024 2046     		mov	r0, r4
+ 1165 0026 FFF7FEFF 		bl	n_pos
+ 1166              	.LVL70:
+ 276:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 1167              		.loc 1 276 3 view .LVU281
+ 1168 002a C021     		movs	r1, #192
+ 1169 002c 2046     		mov	r0, r4
+ 1170 002e FFF7FEFF 		bl	n_raw_print
+ 1171              	.LVL71:
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 36
+
+
+ 277:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 1172              		.loc 1 277 3 view .LVU282
+ 1173 0032 C021     		movs	r1, #192
+ 1174 0034 2046     		mov	r0, r4
+ 1175 0036 FFF7FEFF 		bl	n_raw_print
+ 1176              	.LVL72:
+ 278:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 1177              		.loc 1 278 3 view .LVU283
+ 1178 003a C021     		movs	r1, #192
+ 1179 003c 2046     		mov	r0, r4
+ 1180 003e FFF7FEFF 		bl	n_raw_print
+ 1181              	.LVL73:
+ 279:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 1182              		.loc 1 279 3 view .LVU284
+ 1183 0042 C021     		movs	r1, #192
+ 1184 0044 2046     		mov	r0, r4
+ 1185 0046 FFF7FEFF 		bl	n_raw_print
+ 1186              	.LVL74:
+ 280:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 1187              		.loc 1 280 3 view .LVU285
+ 1188 004a C021     		movs	r1, #192
+ 1189 004c 2046     		mov	r0, r4
+ 1190 004e FFF7FEFF 		bl	n_raw_print
+ 1191              	.LVL75:
+ 281:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 1192              		.loc 1 281 3 view .LVU286
+ 1193 0052 C021     		movs	r1, #192
+ 1194 0054 2046     		mov	r0, r4
+ 1195 0056 FFF7FEFF 		bl	n_raw_print
+ 1196              	.LVL76:
+ 282:Src/main.c    ****   n_raw_print(&n, 0b11000000);
+ 1197              		.loc 1 282 3 view .LVU287
+ 1198 005a C021     		movs	r1, #192
+ 1199 005c 2046     		mov	r0, r4
+ 1200 005e FFF7FEFF 		bl	n_raw_print
+ 1201              	.LVL77:
+ 283:Src/main.c    ****   update_score();
+ 1202              		.loc 1 283 3 view .LVU288
+ 1203 0062 C021     		movs	r1, #192
+ 1204 0064 2046     		mov	r0, r4
+ 1205 0066 FFF7FEFF 		bl	n_raw_print
+ 1206              	.LVL78:
+ 284:Src/main.c    **** 
+ 1207              		.loc 1 284 3 view .LVU289
+ 1208 006a FFF7FEFF 		bl	update_score
+ 1209              	.LVL79:
+ 300:Src/main.c    ****   /* Create the mutex(es) */
+ 1210              		.loc 1 300 3 view .LVU290
+ 1211 006e FFF7FEFF 		bl	osKernelInitialize
+ 1212              	.LVL80:
+ 303:Src/main.c    **** 
+ 1213              		.loc 1 303 3 view .LVU291
+ 303:Src/main.c    **** 
+ 1214              		.loc 1 303 21 is_stmt 0 view .LVU292
+ 1215 0072 0E48     		ldr	r0, .L79+4
+ 1216 0074 FFF7FEFF 		bl	osMutexNew
+ 1217              	.LVL81:
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 37
+
+
+ 303:Src/main.c    **** 
+ 1218              		.loc 1 303 19 view .LVU293
+ 1219 0078 0D4B     		ldr	r3, .L79+8
+ 1220 007a 1860     		str	r0, [r3]
+ 323:Src/main.c    ****   
+ 1221              		.loc 1 323 3 is_stmt 1 view .LVU294
+ 323:Src/main.c    ****   
+ 1222              		.loc 1 323 23 is_stmt 0 view .LVU295
+ 1223 007c 0D4A     		ldr	r2, .L79+12
+ 1224 007e 0021     		movs	r1, #0
+ 1225 0080 0D48     		ldr	r0, .L79+16
+ 1226 0082 FFF7FEFF 		bl	osThreadNew
+ 1227              	.LVL82:
+ 323:Src/main.c    ****   
+ 1228              		.loc 1 323 21 view .LVU296
+ 1229 0086 0D4B     		ldr	r3, .L79+20
+ 1230 0088 1860     		str	r0, [r3]
+ 327:Src/main.c    ****   button_task_handle = osThreadNew(button_task, NULL, &button_task_handle_attributes);
+ 1231              		.loc 1 327 3 is_stmt 1 view .LVU297
+ 327:Src/main.c    ****   button_task_handle = osThreadNew(button_task, NULL, &button_task_handle_attributes);
+ 1232              		.loc 1 327 24 is_stmt 0 view .LVU298
+ 1233 008a 0D4A     		ldr	r2, .L79+24
+ 1234 008c 0021     		movs	r1, #0
+ 1235 008e 0D48     		ldr	r0, .L79+28
+ 1236 0090 FFF7FEFF 		bl	osThreadNew
+ 1237              	.LVL83:
+ 327:Src/main.c    ****   button_task_handle = osThreadNew(button_task, NULL, &button_task_handle_attributes);
+ 1238              		.loc 1 327 22 view .LVU299
+ 1239 0094 0C4B     		ldr	r3, .L79+32
+ 1240 0096 1860     		str	r0, [r3]
+ 328:Src/main.c    ****   /* USER CODE END RTOS_THREADS */
+ 1241              		.loc 1 328 3 is_stmt 1 view .LVU300
+ 328:Src/main.c    ****   /* USER CODE END RTOS_THREADS */
+ 1242              		.loc 1 328 24 is_stmt 0 view .LVU301
+ 1243 0098 0C4A     		ldr	r2, .L79+36
+ 1244 009a 0021     		movs	r1, #0
+ 1245 009c 0C48     		ldr	r0, .L79+40
+ 1246 009e FFF7FEFF 		bl	osThreadNew
+ 1247              	.LVL84:
+ 328:Src/main.c    ****   /* USER CODE END RTOS_THREADS */
+ 1248              		.loc 1 328 22 view .LVU302
+ 1249 00a2 0C4B     		ldr	r3, .L79+44
+ 1250 00a4 1860     		str	r0, [r3]
+ 1251              	.L77:
+ 341:Src/main.c    ****   {
+ 1252              		.loc 1 341 3 is_stmt 1 discriminator 1 view .LVU303
+ 346:Src/main.c    ****   /* USER CODE END 3 */
+ 1253              		.loc 1 346 3 discriminator 1 view .LVU304
+ 341:Src/main.c    ****   {
+ 1254              		.loc 1 341 9 discriminator 1 view .LVU305
+ 1255 00a6 FEE7     		b	.L77
+ 1256              	.L80:
+ 1257              		.align	2
+ 1258              	.L79:
+ 1259 00a8 00000000 		.word	n
+ 1260 00ac 00000000 		.word	SPI_MUTEX_attributes
+ 1261 00b0 00000000 		.word	SPI_MUTEXHandle
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 38
+
+
+ 1262 00b4 00000000 		.word	defaultTask_attributes
+ 1263 00b8 00000000 		.word	StartDefaultTask
+ 1264 00bc 00000000 		.word	defaultTaskHandle
+ 1265 00c0 00000000 		.word	lcd_task_handle_attributes
+ 1266 00c4 00000000 		.word	lcd_task
+ 1267 00c8 00000000 		.word	lcd_task_handle
+ 1268 00cc 00000000 		.word	button_task_handle_attributes
+ 1269 00d0 00000000 		.word	button_task
+ 1270 00d4 00000000 		.word	button_task_handle
+ 1271              		.cfi_endproc
+ 1272              	.LFE82:
+ 1274              		.global	score
+ 1275              		.section	.bss.score,"aw",%nobits
+ 1276              		.align	2
+ 1279              	score:
+ 1280 0000 00000000 		.space	4
+ 1281              		.global	y_index
+ 1282              		.section	.bss.y_index,"aw",%nobits
+ 1283              		.align	2
+ 1286              	y_index:
+ 1287 0000 00000000 		.space	4
+ 1288              		.global	x_index
+ 1289              		.section	.bss.x_index,"aw",%nobits
+ 1290              		.align	2
+ 1293              	x_index:
+ 1294 0000 00000000 		.space	4
+ 1295              		.global	n
+ 1296              		.section	.data.n,"aw"
+ 1297              		.align	2
+ 1300              	n:
+ 1301 0000 00000000 		.word	hspi1
+ 1302 0004 000C0140 		.word	1073810432
+ 1303 0008 0100     		.short	1
+ 1304 000a 0000     		.space	2
+ 1305 000c 000C0140 		.word	1073810432
+ 1306 0010 0200     		.short	2
+ 1307 0012 0000     		.space	2
+ 1308 0014 00080140 		.word	1073809408
+ 1309 0018 1000     		.short	16
+ 1310 001a 0000     		.space	2
+ 1311              		.global	SPI_MUTEX_attributes
+ 1312              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 1313              		.align	2
+ 1314              	.LC3:
+ 1315 0000 5350495F 		.ascii	"SPI_MUTEX\000"
+ 1315      4D555445 
+ 1315      5800
+ 1316              		.section	.rodata.SPI_MUTEX_attributes,"a"
+ 1317              		.align	2
+ 1320              	SPI_MUTEX_attributes:
+ 1321 0000 00000000 		.word	.LC3
+ 1322 0004 00000000 		.space	4
+ 1323 0008 00000000 		.word	SPI_MUTEXControlBlock
+ 1324 000c 50000000 		.word	80
+ 1325              		.global	SPI_MUTEXControlBlock
+ 1326              		.section	.bss.SPI_MUTEXControlBlock,"aw",%nobits
+ 1327              		.align	2
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 39
+
+
+ 1330              	SPI_MUTEXControlBlock:
+ 1331 0000 00000000 		.space	80
+ 1331      00000000 
+ 1331      00000000 
+ 1331      00000000 
+ 1331      00000000 
+ 1332              		.global	SPI_MUTEXHandle
+ 1333              		.section	.bss.SPI_MUTEXHandle,"aw",%nobits
+ 1334              		.align	2
+ 1337              	SPI_MUTEXHandle:
+ 1338 0000 00000000 		.space	4
+ 1339              		.global	button_task_handle_attributes
+ 1340              		.section	.rodata.str1.4
+ 1341 000a 0000     		.align	2
+ 1342              	.LC4:
+ 1343 000c 42757474 		.ascii	"Button_Task\000"
+ 1343      6F6E5F54 
+ 1343      61736B00 
+ 1344              		.section	.rodata.button_task_handle_attributes,"a"
+ 1345              		.align	2
+ 1348              	button_task_handle_attributes:
+ 1349 0000 0C000000 		.word	.LC4
+ 1350 0004 00000000 		.space	16
+ 1350      00000000 
+ 1350      00000000 
+ 1350      00000000 
+ 1351 0014 00020000 		.word	512
+ 1352 0018 18000000 		.word	24
+ 1353 001c 00000000 		.space	8
+ 1353      00000000 
+ 1354              		.global	button_task_handle
+ 1355              		.section	.bss.button_task_handle,"aw",%nobits
+ 1356              		.align	2
+ 1359              	button_task_handle:
+ 1360 0000 00000000 		.space	4
+ 1361              		.global	lcd_task_handle_attributes
+ 1362              		.section	.rodata.str1.4
+ 1363              		.align	2
+ 1364              	.LC5:
+ 1365 0018 4C43445F 		.ascii	"LCD_Task\000"
+ 1365      5461736B 
+ 1365      00
+ 1366              		.section	.rodata.lcd_task_handle_attributes,"a"
+ 1367              		.align	2
+ 1370              	lcd_task_handle_attributes:
+ 1371 0000 18000000 		.word	.LC5
+ 1372 0004 00000000 		.space	16
+ 1372      00000000 
+ 1372      00000000 
+ 1372      00000000 
+ 1373 0014 00020000 		.word	512
+ 1374 0018 18000000 		.word	24
+ 1375 001c 00000000 		.space	8
+ 1375      00000000 
+ 1376              		.global	lcd_task_handle
+ 1377              		.section	.bss.lcd_task_handle,"aw",%nobits
+ 1378              		.align	2
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 40
+
+
+ 1381              	lcd_task_handle:
+ 1382 0000 00000000 		.space	4
+ 1383              		.global	defaultTask_attributes
+ 1384              		.section	.rodata.str1.4
+ 1385 0021 000000   		.align	2
+ 1386              	.LC6:
+ 1387 0024 64656661 		.ascii	"defaultTask\000"
+ 1387      756C7454 
+ 1387      61736B00 
+ 1388              		.section	.rodata.defaultTask_attributes,"a"
+ 1389              		.align	2
+ 1392              	defaultTask_attributes:
+ 1393 0000 24000000 		.word	.LC6
+ 1394 0004 00000000 		.space	16
+ 1394      00000000 
+ 1394      00000000 
+ 1394      00000000 
+ 1395 0014 00020000 		.word	512
+ 1396 0018 18000000 		.word	24
+ 1397 001c 00000000 		.space	8
+ 1397      00000000 
+ 1398              		.global	defaultTaskHandle
+ 1399              		.section	.bss.defaultTaskHandle,"aw",%nobits
+ 1400              		.align	2
+ 1403              	defaultTaskHandle:
+ 1404 0000 00000000 		.space	4
+ 1405              		.global	hspi1
+ 1406              		.section	.bss.hspi1,"aw",%nobits
+ 1407              		.align	2
+ 1410              	hspi1:
+ 1411 0000 00000000 		.space	88
+ 1411      00000000 
+ 1411      00000000 
+ 1411      00000000 
+ 1411      00000000 
+ 1412              		.text
+ 1413              	.Letext0:
+ 1414              		.file 3 "c:\\users\\abhinav\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-vscode\\@x
+ 1415              		.file 4 "c:\\users\\abhinav\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-vscode\\@x
+ 1416              		.file 5 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h"
+ 1417              		.file 6 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 1418              		.file 7 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h"
+ 1419              		.file 8 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc_ex.h"
+ 1420              		.file 9 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h"
+ 1421              		.file 10 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h"
+ 1422              		.file 11 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.h"
+ 1423              		.file 12 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h"
+ 1424              		.file 13 "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3/portmacro.h"
+ 1425              		.file 14 "Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h"
+ 1426              		.file 15 "Inc/nokia.h"
+ 1427              		.file 16 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h"
+ 1428              		.file 17 "c:\\users\\abhinav\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-vscode\\@
+ 1429              		.file 18 "<built-in>"
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 41
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:19     .rodata.lcd_task.str1.4:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:26     .text.lcd_task:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:32     .text.lcd_task:00000000 lcd_task
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:99     .text.lcd_task:00000044 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1293   .bss.x_index:00000000 x_index
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1286   .bss.y_index:00000000 y_index
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1300   .data.n:00000000 n
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:108    .text.MX_GPIO_Init:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:113    .text.MX_GPIO_Init:00000000 MX_GPIO_Init
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:313    .text.MX_GPIO_Init:000000f4 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:321    .text.StartDefaultTask:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:327    .text.StartDefaultTask:00000000 StartDefaultTask
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:357    .text.StartDefaultTask:00000018 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:362    .text.read_btn_ok:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:368    .text.read_btn_ok:00000000 read_btn_ok
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:393    .text.read_btn_ok:00000014 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:398    .text.read_btn_up:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:404    .text.read_btn_up:00000000 read_btn_up
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:429    .text.read_btn_up:00000014 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:434    .text.read_btn_dn:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:440    .text.read_btn_dn:00000000 read_btn_dn
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:465    .text.read_btn_dn:00000014 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:470    .text.read_btn_rt:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:476    .text.read_btn_rt:00000000 read_btn_rt
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:501    .text.read_btn_rt:00000014 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:506    .text.read_btn_lt:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:512    .text.read_btn_lt:00000000 read_btn_lt
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:537    .text.read_btn_lt:00000014 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:542    .text.get_random_number:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:548    .text.get_random_number:00000000 get_random_number
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:563    .text.generate_enemy_sprite:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:569    .text.generate_enemy_sprite:00000000 generate_enemy_sprite
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:585    .rodata.update_score.str1.4:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:589    .text.update_score:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:595    .text.update_score:00000000 update_score
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:639    .text.update_score:00000030 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1279   .bss.score:00000000 score
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:646    .text.button_task:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:652    .text.button_task:00000000 button_task
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:890    .text.button_task:000000fc $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:899    .text.Error_Handler:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:905    .text.Error_Handler:00000000 Error_Handler
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:937    .text.MX_SPI1_Init:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:942    .text.MX_SPI1_Init:00000000 MX_SPI1_Init
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1010   .text.MX_SPI1_Init:00000038 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1410   .bss.hspi1:00000000 hspi1
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1016   .text.SystemClock_Config:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1022   .text.SystemClock_Config:00000000 SystemClock_Config
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1123   .text.main:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1129   .text.main:00000000 main
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1259   .text.main:000000a8 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1320   .rodata.SPI_MUTEX_attributes:00000000 SPI_MUTEX_attributes
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1337   .bss.SPI_MUTEXHandle:00000000 SPI_MUTEXHandle
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1392   .rodata.defaultTask_attributes:00000000 defaultTask_attributes
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1403   .bss.defaultTaskHandle:00000000 defaultTaskHandle
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s 			page 42
+
+
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1370   .rodata.lcd_task_handle_attributes:00000000 lcd_task_handle_attributes
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1381   .bss.lcd_task_handle:00000000 lcd_task_handle
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1348   .rodata.button_task_handle_attributes:00000000 button_task_handle_attributes
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1359   .bss.button_task_handle:00000000 button_task_handle
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1276   .bss.score:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1283   .bss.y_index:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1290   .bss.x_index:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1297   .data.n:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1313   .rodata.str1.4:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1317   .rodata.SPI_MUTEX_attributes:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1330   .bss.SPI_MUTEXControlBlock:00000000 SPI_MUTEXControlBlock
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1327   .bss.SPI_MUTEXControlBlock:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1334   .bss.SPI_MUTEXHandle:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1345   .rodata.button_task_handle_attributes:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1356   .bss.button_task_handle:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1367   .rodata.lcd_task_handle_attributes:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1378   .bss.lcd_task_handle:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1389   .rodata.defaultTask_attributes:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1400   .bss.defaultTaskHandle:00000000 $d
+C:\Users\Abhinav\AppData\Local\Temp\ccVhuvdm.s:1407   .bss.hspi1:00000000 $d
+
+UNDEFINED SYMBOLS
+n_print
+HAL_Delay
+HAL_GPIO_WritePin
+HAL_GPIO_Init
+HAL_GPIO_TogglePin
+osDelay
+HAL_GPIO_ReadPin
+sprintf
+n_pos
+n_raw_print
+HAL_SPI_Init
+memset
+HAL_RCC_OscConfig
+HAL_RCC_ClockConfig
+HAL_Init
+n_init
+n_clear
+osKernelInitialize
+osMutexNew
+osThreadNew

@@ -1,0 +1,878 @@
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"nokia.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Src/nokia.c"
+  18              		.section	.text.n_spi_tx,"ax",%progbits
+  19              		.align	1
+  20              		.global	n_spi_tx
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	n_spi_tx:
+  26              	.LVL0:
+  27              	.LFB65:
+   1:Src/nokia.c   **** #include "nokia.h"
+   2:Src/nokia.c   **** 
+   3:Src/nokia.c   **** uint8_t font[100][FONT_SIZE] =
+   4:Src/nokia.c   **** {
+   5:Src/nokia.c   ****     {0x00, 0x00, 0x00, 0x00, 0x00},   // space
+   6:Src/nokia.c   ****     {0x00, 0x00, 0x2f, 0x00, 0x00},   // !
+   7:Src/nokia.c   ****     {0x00, 0x07, 0x00, 0x07, 0x00},   // "
+   8:Src/nokia.c   ****     {0x14, 0x7f, 0x14, 0x7f, 0x14},   // #
+   9:Src/nokia.c   ****     {0x24, 0x2a, 0x7f, 0x2a, 0x12},   // $
+  10:Src/nokia.c   ****     {0x23, 0x13, 0x08, 0x64, 0x62},   // %
+  11:Src/nokia.c   ****     {0x36, 0x49, 0x55, 0x22, 0x50},   // &
+  12:Src/nokia.c   ****     {0x00, 0x05, 0x03, 0x00, 0x00},   // '
+  13:Src/nokia.c   ****     {0x00, 0x1c, 0x22, 0x41, 0x00},   // (
+  14:Src/nokia.c   ****     {0x00, 0x41, 0x22, 0x1c, 0x00},   // )
+  15:Src/nokia.c   ****     {0x14, 0x08, 0x3E, 0x08, 0x14},   // *
+  16:Src/nokia.c   ****     {0x08, 0x08, 0x3E, 0x08, 0x08},   // +
+  17:Src/nokia.c   ****     {0x00, 0x00, 0xA0, 0x60, 0x00},   // ,
+  18:Src/nokia.c   ****     {0x08, 0x08, 0x08, 0x08, 0x08},   // -
+  19:Src/nokia.c   ****     {0x00, 0x60, 0x60, 0x00, 0x00},   // .
+  20:Src/nokia.c   ****     {0x20, 0x10, 0x08, 0x04, 0x02},   // /
+  21:Src/nokia.c   **** 
+  22:Src/nokia.c   ****     {0x3E, 0x51, 0x49, 0x45, 0x3E},   // 0
+  23:Src/nokia.c   ****     {0x00, 0x42, 0x7F, 0x40, 0x00},   // 1
+  24:Src/nokia.c   ****     {0x42, 0x61, 0x51, 0x49, 0x46},   // 2
+  25:Src/nokia.c   ****     {0x21, 0x41, 0x45, 0x4B, 0x31},   // 3
+  26:Src/nokia.c   ****     {0x18, 0x14, 0x12, 0x7F, 0x10},   // 4
+  27:Src/nokia.c   ****     {0x27, 0x45, 0x45, 0x45, 0x39},   // 5
+  28:Src/nokia.c   ****     {0x3C, 0x4A, 0x49, 0x49, 0x30},   // 6
+  29:Src/nokia.c   ****     {0x01, 0x71, 0x09, 0x05, 0x03},   // 7
+  30:Src/nokia.c   ****     {0x36, 0x49, 0x49, 0x49, 0x36},   // 8
+  31:Src/nokia.c   ****     {0x06, 0x49, 0x49, 0x29, 0x1E},   // 9
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 2
+
+
+  32:Src/nokia.c   **** 
+  33:Src/nokia.c   ****     {0x00, 0x36, 0x36, 0x00, 0x00},   // :
+  34:Src/nokia.c   ****     {0x00, 0x56, 0x36, 0x00, 0x00},   // ;
+  35:Src/nokia.c   ****     {0x08, 0x14, 0x22, 0x41, 0x00},   // <
+  36:Src/nokia.c   ****     {0x14, 0x14, 0x14, 0x14, 0x14},   // =
+  37:Src/nokia.c   ****     {0x00, 0x41, 0x22, 0x14, 0x08},   // >
+  38:Src/nokia.c   ****     {0x02, 0x01, 0x51, 0x09, 0x06},   // ?
+  39:Src/nokia.c   ****     {0x32, 0x49, 0x59, 0x51, 0x3E},   // @
+  40:Src/nokia.c   **** 
+  41:Src/nokia.c   ****     {0x7C, 0x12, 0x11, 0x12, 0x7C},   // A
+  42:Src/nokia.c   ****     {0x7F, 0x49, 0x49, 0x49, 0x36},   // B
+  43:Src/nokia.c   ****     {0x3E, 0x41, 0x41, 0x41, 0x22},   // C
+  44:Src/nokia.c   ****     {0x7F, 0x41, 0x41, 0x22, 0x1C},   // D
+  45:Src/nokia.c   ****     {0x7F, 0x49, 0x49, 0x49, 0x41},   // E
+  46:Src/nokia.c   ****     {0x7F, 0x09, 0x09, 0x09, 0x01},   // F
+  47:Src/nokia.c   ****     {0x3E, 0x41, 0x49, 0x49, 0x7A},   // G
+  48:Src/nokia.c   ****     {0x7F, 0x08, 0x08, 0x08, 0x7F},   // H
+  49:Src/nokia.c   ****     {0x00, 0x41, 0x7F, 0x41, 0x00},   // I
+  50:Src/nokia.c   ****     {0x20, 0x40, 0x41, 0x3F, 0x01},   // J
+  51:Src/nokia.c   ****     {0x7F, 0x08, 0x14, 0x22, 0x41},   // K
+  52:Src/nokia.c   ****     {0x7F, 0x40, 0x40, 0x40, 0x40},   // L
+  53:Src/nokia.c   ****     {0x7F, 0x02, 0x0C, 0x02, 0x7F},   // M
+  54:Src/nokia.c   ****     {0x7F, 0x04, 0x08, 0x10, 0x7F},   // N
+  55:Src/nokia.c   ****     {0x3E, 0x41, 0x41, 0x41, 0x3E},   // O
+  56:Src/nokia.c   ****     {0x7F, 0x09, 0x09, 0x09, 0x06},   // P
+  57:Src/nokia.c   ****     {0x3E, 0x41, 0x51, 0x21, 0x5E},   // Q
+  58:Src/nokia.c   ****     {0x7F, 0x09, 0x19, 0x29, 0x46},   // R
+  59:Src/nokia.c   ****     {0x46, 0x49, 0x49, 0x49, 0x31},   // S
+  60:Src/nokia.c   ****     {0x01, 0x01, 0x7F, 0x01, 0x01},   // T
+  61:Src/nokia.c   ****     {0x3F, 0x40, 0x40, 0x40, 0x3F},   // U
+  62:Src/nokia.c   ****     {0x1F, 0x20, 0x40, 0x20, 0x1F},   // V
+  63:Src/nokia.c   ****     {0x3F, 0x40, 0x38, 0x40, 0x3F},   // W
+  64:Src/nokia.c   ****     {0x63, 0x14, 0x08, 0x14, 0x63},   // X
+  65:Src/nokia.c   ****     {0x07, 0x08, 0x70, 0x08, 0x07},   // Y
+  66:Src/nokia.c   ****     {0x61, 0x51, 0x49, 0x45, 0x43},   // Z
+  67:Src/nokia.c   **** 
+  68:Src/nokia.c   ****     {0x00, 0x7F, 0x41, 0x41, 0x00},   // [
+  69:Src/nokia.c   ****     {0x55, 0xAA, 0x55, 0xAA, 0x55},   // Backslash (Checker pattern)
+  70:Src/nokia.c   ****     {0x00, 0x41, 0x41, 0x7F, 0x00},   // ]
+  71:Src/nokia.c   ****     {0x04, 0x02, 0x01, 0x02, 0x04},   // ^
+  72:Src/nokia.c   ****     {0x40, 0x40, 0x40, 0x40, 0x40},   // _
+  73:Src/nokia.c   ****     {0x00, 0x03, 0x05, 0x00, 0x00},   // `
+  74:Src/nokia.c   **** 
+  75:Src/nokia.c   ****     {0x20, 0x54, 0x54, 0x54, 0x78},   // a
+  76:Src/nokia.c   ****     {0x7F, 0x48, 0x44, 0x44, 0x38},   // b
+  77:Src/nokia.c   ****     {0x38, 0x44, 0x44, 0x44, 0x20},   // c
+  78:Src/nokia.c   ****     {0x38, 0x44, 0x44, 0x48, 0x7F},   // d
+  79:Src/nokia.c   ****     {0x38, 0x54, 0x54, 0x54, 0x18},   // e
+  80:Src/nokia.c   ****     {0x08, 0x7E, 0x09, 0x01, 0x02},   // f
+  81:Src/nokia.c   ****     {0x18, 0xA4, 0xA4, 0xA4, 0x7C},   // g
+  82:Src/nokia.c   ****     {0x7F, 0x08, 0x04, 0x04, 0x78},   // h
+  83:Src/nokia.c   ****     {0x00, 0x44, 0x7D, 0x40, 0x00},   // i
+  84:Src/nokia.c   ****     {0x40, 0x80, 0x84, 0x7D, 0x00},   // j
+  85:Src/nokia.c   ****     {0x7F, 0x10, 0x28, 0x44, 0x00},   // k
+  86:Src/nokia.c   ****     {0x00, 0x41, 0x7F, 0x40, 0x00},   // l
+  87:Src/nokia.c   ****     {0x7C, 0x04, 0x18, 0x04, 0x78},   // m
+  88:Src/nokia.c   ****     {0x7C, 0x08, 0x04, 0x04, 0x78},   // n
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 3
+
+
+  89:Src/nokia.c   ****     {0x38, 0x44, 0x44, 0x44, 0x38},   // o
+  90:Src/nokia.c   ****     {0xFC, 0x24, 0x24, 0x24, 0x18},   // p
+  91:Src/nokia.c   ****     {0x18, 0x24, 0x24, 0x18, 0xFC},   // q
+  92:Src/nokia.c   ****     {0x7C, 0x08, 0x04, 0x04, 0x08},   // r
+  93:Src/nokia.c   ****     {0x48, 0x54, 0x54, 0x54, 0x20},   // s
+  94:Src/nokia.c   ****     {0x04, 0x3F, 0x44, 0x40, 0x20},   // t
+  95:Src/nokia.c   ****     {0x3C, 0x40, 0x40, 0x20, 0x7C},   // u
+  96:Src/nokia.c   ****     {0x1C, 0x20, 0x40, 0x20, 0x1C},   // v
+  97:Src/nokia.c   ****     {0x3C, 0x40, 0x30, 0x40, 0x3C},   // w
+  98:Src/nokia.c   ****     {0x44, 0x28, 0x10, 0x28, 0x44},   // x
+  99:Src/nokia.c   ****     {0x1C, 0xA0, 0xA0, 0xA0, 0x7C},   // y
+ 100:Src/nokia.c   ****     {0x44, 0x64, 0x54, 0x4C, 0x44},   // z
+ 101:Src/nokia.c   **** 
+ 102:Src/nokia.c   ****     {0x00, 0x10, 0x7C, 0x82, 0x00},   // {
+ 103:Src/nokia.c   ****     {0x00, 0x00, 0xFF, 0x00, 0x00},   // |
+ 104:Src/nokia.c   ****     {0x00, 0x82, 0x7C, 0x10, 0x00},   // }
+ 105:Src/nokia.c   ****     {0x00, 0x06, 0x09, 0x09, 0x06}    // ~ (Degrees)
+ 106:Src/nokia.c   **** };
+ 107:Src/nokia.c   **** 
+ 108:Src/nokia.c   **** 
+ 109:Src/nokia.c   **** void n_spi_tx(nokia_t *n, uint8_t data)
+ 110:Src/nokia.c   **** {
+  28              		.loc 1 110 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 8
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		.loc 1 110 1 is_stmt 0 view .LVU1
+  33 0000 10B5     		push	{r4, lr}
+  34              		.cfi_def_cfa_offset 8
+  35              		.cfi_offset 4, -8
+  36              		.cfi_offset 14, -4
+  37 0002 82B0     		sub	sp, sp, #8
+  38              		.cfi_def_cfa_offset 16
+  39 0004 0446     		mov	r4, r0
+  40 0006 8DF80710 		strb	r1, [sp, #7]
+ 111:Src/nokia.c   ****     HAL_GPIO_WritePin(n->CS_port, n->CS_pin, 0);
+  41              		.loc 1 111 5 is_stmt 1 view .LVU2
+  42 000a 0022     		movs	r2, #0
+  43 000c 018B     		ldrh	r1, [r0, #24]
+  44              	.LVL1:
+  45              		.loc 1 111 5 is_stmt 0 view .LVU3
+  46 000e 4069     		ldr	r0, [r0, #20]
+  47              	.LVL2:
+  48              		.loc 1 111 5 view .LVU4
+  49 0010 FFF7FEFF 		bl	HAL_GPIO_WritePin
+  50              	.LVL3:
+ 112:Src/nokia.c   ****     HAL_SPI_Transmit(n->h, &data, 1, HAL_MAX_DELAY);
+  51              		.loc 1 112 5 is_stmt 1 view .LVU5
+  52 0014 4FF0FF33 		mov	r3, #-1
+  53 0018 0122     		movs	r2, #1
+  54 001a 0DF10701 		add	r1, sp, #7
+  55 001e 2068     		ldr	r0, [r4]
+  56 0020 FFF7FEFF 		bl	HAL_SPI_Transmit
+  57              	.LVL4:
+ 113:Src/nokia.c   ****     HAL_GPIO_WritePin(n->CS_port, n->CS_pin, 1);
+  58              		.loc 1 113 5 view .LVU6
+  59 0024 0122     		movs	r2, #1
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 4
+
+
+  60 0026 218B     		ldrh	r1, [r4, #24]
+  61 0028 6069     		ldr	r0, [r4, #20]
+  62 002a FFF7FEFF 		bl	HAL_GPIO_WritePin
+  63              	.LVL5:
+ 114:Src/nokia.c   **** }
+  64              		.loc 1 114 1 is_stmt 0 view .LVU7
+  65 002e 02B0     		add	sp, sp, #8
+  66              		.cfi_def_cfa_offset 8
+  67              		@ sp needed
+  68 0030 10BD     		pop	{r4, pc}
+  69              		.loc 1 114 1 view .LVU8
+  70              		.cfi_endproc
+  71              	.LFE65:
+  73              		.section	.text.n_init,"ax",%progbits
+  74              		.align	1
+  75              		.global	n_init
+  76              		.syntax unified
+  77              		.thumb
+  78              		.thumb_func
+  80              	n_init:
+  81              	.LVL6:
+  82              	.LFB66:
+ 115:Src/nokia.c   **** 
+ 116:Src/nokia.c   **** void n_init(nokia_t *n)
+ 117:Src/nokia.c   **** {
+  83              		.loc 1 117 1 is_stmt 1 view -0
+  84              		.cfi_startproc
+  85              		@ args = 0, pretend = 0, frame = 0
+  86              		@ frame_needed = 0, uses_anonymous_args = 0
+  87              		.loc 1 117 1 is_stmt 0 view .LVU10
+  88 0000 10B5     		push	{r4, lr}
+  89              		.cfi_def_cfa_offset 8
+  90              		.cfi_offset 4, -8
+  91              		.cfi_offset 14, -4
+  92 0002 0446     		mov	r4, r0
+ 118:Src/nokia.c   ****     HAL_GPIO_WritePin(n->RST_port, n->RST_pin, 1);
+  93              		.loc 1 118 5 is_stmt 1 view .LVU11
+  94 0004 0122     		movs	r2, #1
+  95 0006 018A     		ldrh	r1, [r0, #16]
+  96 0008 C068     		ldr	r0, [r0, #12]
+  97              	.LVL7:
+  98              		.loc 1 118 5 is_stmt 0 view .LVU12
+  99 000a FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 100              	.LVL8:
+ 119:Src/nokia.c   ****     HAL_Delay(10);
+ 101              		.loc 1 119 5 is_stmt 1 view .LVU13
+ 102 000e 0A20     		movs	r0, #10
+ 103 0010 FFF7FEFF 		bl	HAL_Delay
+ 104              	.LVL9:
+ 120:Src/nokia.c   ****     HAL_GPIO_WritePin(n->RST_port, n->RST_pin, 0);
+ 105              		.loc 1 120 5 view .LVU14
+ 106 0014 0022     		movs	r2, #0
+ 107 0016 218A     		ldrh	r1, [r4, #16]
+ 108 0018 E068     		ldr	r0, [r4, #12]
+ 109 001a FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 110              	.LVL10:
+ 121:Src/nokia.c   ****     HAL_Delay(10);
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 5
+
+
+ 111              		.loc 1 121 5 view .LVU15
+ 112 001e 0A20     		movs	r0, #10
+ 113 0020 FFF7FEFF 		bl	HAL_Delay
+ 114              	.LVL11:
+ 122:Src/nokia.c   ****     HAL_GPIO_WritePin(n->RST_port, n->RST_pin, 1);
+ 115              		.loc 1 122 5 view .LVU16
+ 116 0024 0122     		movs	r2, #1
+ 117 0026 218A     		ldrh	r1, [r4, #16]
+ 118 0028 E068     		ldr	r0, [r4, #12]
+ 119 002a FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 120              	.LVL12:
+ 123:Src/nokia.c   **** 
+ 124:Src/nokia.c   ****     HAL_GPIO_WritePin(n->DC_port, n->DC_pin, 0);
+ 121              		.loc 1 124 5 view .LVU17
+ 122 002e 0022     		movs	r2, #0
+ 123 0030 2189     		ldrh	r1, [r4, #8]
+ 124 0032 6068     		ldr	r0, [r4, #4]
+ 125 0034 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 126              	.LVL13:
+ 125:Src/nokia.c   ****     
+ 126:Src/nokia.c   ****     n_spi_tx(n, 0x21); // extended instruction
+ 127              		.loc 1 126 5 view .LVU18
+ 128 0038 2121     		movs	r1, #33
+ 129 003a 2046     		mov	r0, r4
+ 130 003c FFF7FEFF 		bl	n_spi_tx
+ 131              	.LVL14:
+ 127:Src/nokia.c   ****     n_spi_tx(n, 0x12); // set bias
+ 132              		.loc 1 127 5 view .LVU19
+ 133 0040 1221     		movs	r1, #18
+ 134 0042 2046     		mov	r0, r4
+ 135 0044 FFF7FEFF 		bl	n_spi_tx
+ 136              	.LVL15:
+ 128:Src/nokia.c   ****     n_spi_tx(n, 0xC0); // set Vop 
+ 137              		.loc 1 128 5 view .LVU20
+ 138 0048 C021     		movs	r1, #192
+ 139 004a 2046     		mov	r0, r4
+ 140 004c FFF7FEFF 		bl	n_spi_tx
+ 141              	.LVL16:
+ 129:Src/nokia.c   ****     n_spi_tx(n, 0x20); // basic instruction
+ 142              		.loc 1 129 5 view .LVU21
+ 143 0050 2021     		movs	r1, #32
+ 144 0052 2046     		mov	r0, r4
+ 145 0054 FFF7FEFF 		bl	n_spi_tx
+ 146              	.LVL17:
+ 130:Src/nokia.c   ****     n_spi_tx(n, 0x0C); // set display control
+ 147              		.loc 1 130 5 view .LVU22
+ 148 0058 0C21     		movs	r1, #12
+ 149 005a 2046     		mov	r0, r4
+ 150 005c FFF7FEFF 		bl	n_spi_tx
+ 151              	.LVL18:
+ 131:Src/nokia.c   **** }
+ 152              		.loc 1 131 1 is_stmt 0 view .LVU23
+ 153 0060 10BD     		pop	{r4, pc}
+ 154              		.loc 1 131 1 view .LVU24
+ 155              		.cfi_endproc
+ 156              	.LFE66:
+ 158              		.section	.text.n_pos,"ax",%progbits
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 6
+
+
+ 159              		.align	1
+ 160              		.global	n_pos
+ 161              		.syntax unified
+ 162              		.thumb
+ 163              		.thumb_func
+ 165              	n_pos:
+ 166              	.LVL19:
+ 167              	.LFB67:
+ 132:Src/nokia.c   **** 
+ 133:Src/nokia.c   **** void n_pos(nokia_t *n, uint16_t y, uint16_t x)
+ 134:Src/nokia.c   **** {
+ 168              		.loc 1 134 1 is_stmt 1 view -0
+ 169              		.cfi_startproc
+ 170              		@ args = 0, pretend = 0, frame = 0
+ 171              		@ frame_needed = 0, uses_anonymous_args = 0
+ 172              		.loc 1 134 1 is_stmt 0 view .LVU26
+ 173 0000 70B5     		push	{r4, r5, r6, lr}
+ 174              		.cfi_def_cfa_offset 16
+ 175              		.cfi_offset 4, -16
+ 176              		.cfi_offset 5, -12
+ 177              		.cfi_offset 6, -8
+ 178              		.cfi_offset 14, -4
+ 179 0002 0446     		mov	r4, r0
+ 180 0004 0E46     		mov	r6, r1
+ 181 0006 1546     		mov	r5, r2
+ 135:Src/nokia.c   ****     if ((y < 0) || (x < 0)) 
+ 182              		.loc 1 135 5 is_stmt 1 view .LVU27
+ 136:Src/nokia.c   ****     {
+ 137:Src/nokia.c   ****         return;
+ 138:Src/nokia.c   ****     }
+ 139:Src/nokia.c   ****     HAL_GPIO_WritePin(n->DC_port, n->DC_pin, 0);
+ 183              		.loc 1 139 5 view .LVU28
+ 184 0008 0022     		movs	r2, #0
+ 185              	.LVL20:
+ 186              		.loc 1 139 5 is_stmt 0 view .LVU29
+ 187 000a 0189     		ldrh	r1, [r0, #8]
+ 188              	.LVL21:
+ 189              		.loc 1 139 5 view .LVU30
+ 190 000c 4068     		ldr	r0, [r0, #4]
+ 191              	.LVL22:
+ 192              		.loc 1 139 5 view .LVU31
+ 193 000e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 194              	.LVL23:
+ 140:Src/nokia.c   ****     n_spi_tx(n, 0x20);
+ 195              		.loc 1 140 5 is_stmt 1 view .LVU32
+ 196 0012 2021     		movs	r1, #32
+ 197 0014 2046     		mov	r0, r4
+ 198 0016 FFF7FEFF 		bl	n_spi_tx
+ 199              	.LVL24:
+ 141:Src/nokia.c   ****     n_spi_tx(n, (0x40 | y));
+ 200              		.loc 1 141 5 view .LVU33
+ 201 001a 46F04001 		orr	r1, r6, #64
+ 202 001e C9B2     		uxtb	r1, r1
+ 203 0020 2046     		mov	r0, r4
+ 204 0022 FFF7FEFF 		bl	n_spi_tx
+ 205              	.LVL25:
+ 142:Src/nokia.c   ****     n_spi_tx(n, (0x80 | x));
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 7
+
+
+ 206              		.loc 1 142 5 view .LVU34
+ 207 0026 65F07F01 		orn	r1, r5, #127
+ 208 002a C9B2     		uxtb	r1, r1
+ 209 002c 2046     		mov	r0, r4
+ 210 002e FFF7FEFF 		bl	n_spi_tx
+ 211              	.LVL26:
+ 143:Src/nokia.c   **** }
+ 212              		.loc 1 143 1 is_stmt 0 view .LVU35
+ 213 0032 70BD     		pop	{r4, r5, r6, pc}
+ 214              		.loc 1 143 1 view .LVU36
+ 215              		.cfi_endproc
+ 216              	.LFE67:
+ 218              		.section	.text.n_clear,"ax",%progbits
+ 219              		.align	1
+ 220              		.global	n_clear
+ 221              		.syntax unified
+ 222              		.thumb
+ 223              		.thumb_func
+ 225              	n_clear:
+ 226              	.LVL27:
+ 227              	.LFB68:
+ 144:Src/nokia.c   **** 
+ 145:Src/nokia.c   **** void n_clear(nokia_t *n)
+ 146:Src/nokia.c   **** {
+ 228              		.loc 1 146 1 is_stmt 1 view -0
+ 229              		.cfi_startproc
+ 230              		@ args = 0, pretend = 0, frame = 0
+ 231              		@ frame_needed = 0, uses_anonymous_args = 0
+ 232              		.loc 1 146 1 is_stmt 0 view .LVU38
+ 233 0000 38B5     		push	{r3, r4, r5, lr}
+ 234              		.cfi_def_cfa_offset 16
+ 235              		.cfi_offset 3, -16
+ 236              		.cfi_offset 4, -12
+ 237              		.cfi_offset 5, -8
+ 238              		.cfi_offset 14, -4
+ 239 0002 0546     		mov	r5, r0
+ 147:Src/nokia.c   ****     n_pos(n, 0, 0);
+ 240              		.loc 1 147 5 is_stmt 1 view .LVU39
+ 241 0004 0022     		movs	r2, #0
+ 242 0006 1146     		mov	r1, r2
+ 243 0008 FFF7FEFF 		bl	n_pos
+ 244              	.LVL28:
+ 148:Src/nokia.c   ****     HAL_GPIO_WritePin(n->DC_port, n->DC_pin, 1);
+ 245              		.loc 1 148 5 view .LVU40
+ 246 000c 0122     		movs	r2, #1
+ 247 000e 2989     		ldrh	r1, [r5, #8]
+ 248 0010 6868     		ldr	r0, [r5, #4]
+ 249 0012 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 250              	.LVL29:
+ 149:Src/nokia.c   ****     for(int i = 0; i < 504; i++)
+ 251              		.loc 1 149 5 view .LVU41
+ 252              	.LBB2:
+ 253              		.loc 1 149 9 view .LVU42
+ 254              		.loc 1 149 13 is_stmt 0 view .LVU43
+ 255 0016 0024     		movs	r4, #0
+ 256              		.loc 1 149 5 view .LVU44
+ 257 0018 04E0     		b	.L8
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 8
+
+
+ 258              	.LVL30:
+ 259              	.L9:
+ 150:Src/nokia.c   ****     {
+ 151:Src/nokia.c   ****         n_spi_tx(n, 0x00);
+ 260              		.loc 1 151 9 is_stmt 1 discriminator 3 view .LVU45
+ 261 001a 0021     		movs	r1, #0
+ 262 001c 2846     		mov	r0, r5
+ 263 001e FFF7FEFF 		bl	n_spi_tx
+ 264              	.LVL31:
+ 149:Src/nokia.c   ****     for(int i = 0; i < 504; i++)
+ 265              		.loc 1 149 30 discriminator 3 view .LVU46
+ 266 0022 0134     		adds	r4, r4, #1
+ 267              	.LVL32:
+ 268              	.L8:
+ 149:Src/nokia.c   ****     for(int i = 0; i < 504; i++)
+ 269              		.loc 1 149 22 discriminator 1 view .LVU47
+ 270 0024 B4F5FC7F 		cmp	r4, #504
+ 271 0028 F7DB     		blt	.L9
+ 272              	.LBE2:
+ 152:Src/nokia.c   ****     }
+ 153:Src/nokia.c   **** }
+ 273              		.loc 1 153 1 is_stmt 0 view .LVU48
+ 274 002a 38BD     		pop	{r3, r4, r5, pc}
+ 275              		.loc 1 153 1 view .LVU49
+ 276              		.cfi_endproc
+ 277              	.LFE68:
+ 279              		.section	.text.n_print,"ax",%progbits
+ 280              		.align	1
+ 281              		.global	n_print
+ 282              		.syntax unified
+ 283              		.thumb
+ 284              		.thumb_func
+ 286              	n_print:
+ 287              	.LVL33:
+ 288              	.LFB69:
+ 154:Src/nokia.c   **** 
+ 155:Src/nokia.c   **** void n_print(nokia_t *n, uint16_t y, uint16_t x, char *str)
+ 156:Src/nokia.c   **** {
+ 289              		.loc 1 156 1 is_stmt 1 view -0
+ 290              		.cfi_startproc
+ 291              		@ args = 0, pretend = 0, frame = 0
+ 292              		@ frame_needed = 0, uses_anonymous_args = 0
+ 293              		.loc 1 156 1 is_stmt 0 view .LVU51
+ 294 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 295              		.cfi_def_cfa_offset 24
+ 296              		.cfi_offset 4, -24
+ 297              		.cfi_offset 5, -20
+ 298              		.cfi_offset 6, -16
+ 299              		.cfi_offset 7, -12
+ 300              		.cfi_offset 8, -8
+ 301              		.cfi_offset 14, -4
+ 302 0004 0646     		mov	r6, r0
+ 303 0006 9846     		mov	r8, r3
+ 157:Src/nokia.c   ****     int i = 0;
+ 304              		.loc 1 157 5 is_stmt 1 view .LVU52
+ 305              	.LVL34:
+ 158:Src/nokia.c   ****     int j = 0;
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 9
+
+
+ 306              		.loc 1 158 5 view .LVU53
+ 159:Src/nokia.c   ****     n_pos(n, y, x);
+ 307              		.loc 1 159 5 view .LVU54
+ 308 0008 FFF7FEFF 		bl	n_pos
+ 309              	.LVL35:
+ 160:Src/nokia.c   ****     HAL_GPIO_WritePin(n->DC_port, n->DC_pin, 1);
+ 310              		.loc 1 160 5 view .LVU55
+ 311 000c 0122     		movs	r2, #1
+ 312 000e 3189     		ldrh	r1, [r6, #8]
+ 313 0010 7068     		ldr	r0, [r6, #4]
+ 314 0012 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 315              	.LVL36:
+ 161:Src/nokia.c   ****     while (str[i] != 0)
+ 316              		.loc 1 161 5 view .LVU56
+ 157:Src/nokia.c   ****     int j = 0;
+ 317              		.loc 1 157 9 is_stmt 0 view .LVU57
+ 318 0016 0027     		movs	r7, #0
+ 319              		.loc 1 161 11 view .LVU58
+ 320 0018 0DE0     		b	.L12
+ 321              	.LVL37:
+ 322              	.L13:
+ 162:Src/nokia.c   ****     {
+ 163:Src/nokia.c   ****         for (j = 0; j < 5; j++)
+ 164:Src/nokia.c   ****         {
+ 165:Src/nokia.c   ****             n_spi_tx(n, font[str[i]-32][j]);
+ 323              		.loc 1 165 13 is_stmt 1 discriminator 3 view .LVU59
+ 324              		.loc 1 165 33 is_stmt 0 discriminator 3 view .LVU60
+ 325 001a 2A78     		ldrb	r2, [r5]	@ zero_extendqisi2
+ 326              		.loc 1 165 36 discriminator 3 view .LVU61
+ 327 001c 203A     		subs	r2, r2, #32
+ 328              		.loc 1 165 13 discriminator 3 view .LVU62
+ 329 001e 02EB8202 		add	r2, r2, r2, lsl #2
+ 330 0022 0C4B     		ldr	r3, .L18
+ 331 0024 1344     		add	r3, r3, r2
+ 332 0026 195D     		ldrb	r1, [r3, r4]	@ zero_extendqisi2
+ 333 0028 3046     		mov	r0, r6
+ 334 002a FFF7FEFF 		bl	n_spi_tx
+ 335              	.LVL38:
+ 163:Src/nokia.c   ****         {
+ 336              		.loc 1 163 29 is_stmt 1 discriminator 3 view .LVU63
+ 337 002e 0134     		adds	r4, r4, #1
+ 338              	.LVL39:
+ 339              	.L14:
+ 163:Src/nokia.c   ****         {
+ 340              		.loc 1 163 23 discriminator 1 view .LVU64
+ 341 0030 042C     		cmp	r4, #4
+ 342 0032 F2DD     		ble	.L13
+ 166:Src/nokia.c   ****         }
+ 167:Src/nokia.c   ****         i++;
+ 343              		.loc 1 167 9 view .LVU65
+ 344              		.loc 1 167 10 is_stmt 0 view .LVU66
+ 345 0034 0137     		adds	r7, r7, #1
+ 346              	.LVL40:
+ 347              	.L12:
+ 161:Src/nokia.c   ****     {
+ 348              		.loc 1 161 19 is_stmt 1 view .LVU67
+ 161:Src/nokia.c   ****     {
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 10
+
+
+ 349              		.loc 1 161 15 is_stmt 0 view .LVU68
+ 350 0036 08EB0705 		add	r5, r8, r7
+ 351 003a 18F80730 		ldrb	r3, [r8, r7]	@ zero_extendqisi2
+ 161:Src/nokia.c   ****     {
+ 352              		.loc 1 161 19 view .LVU69
+ 353 003e 0BB1     		cbz	r3, .L17
+ 163:Src/nokia.c   ****         {
+ 354              		.loc 1 163 16 view .LVU70
+ 355 0040 0024     		movs	r4, #0
+ 356 0042 F5E7     		b	.L14
+ 357              	.L17:
+ 168:Src/nokia.c   ****     }
+ 169:Src/nokia.c   ****     HAL_GPIO_WritePin(n->DC_port, n->DC_pin, 0);
+ 358              		.loc 1 169 5 is_stmt 1 view .LVU71
+ 359 0044 0022     		movs	r2, #0
+ 360 0046 3189     		ldrh	r1, [r6, #8]
+ 361 0048 7068     		ldr	r0, [r6, #4]
+ 362 004a FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 363              	.LVL41:
+ 170:Src/nokia.c   **** }
+ 364              		.loc 1 170 1 is_stmt 0 view .LVU72
+ 365 004e BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 366              	.LVL42:
+ 367              	.L19:
+ 368              		.loc 1 170 1 view .LVU73
+ 369 0052 00BF     		.align	2
+ 370              	.L18:
+ 371 0054 00000000 		.word	font
+ 372              		.cfi_endproc
+ 373              	.LFE69:
+ 375              		.section	.text.n_raw_print,"ax",%progbits
+ 376              		.align	1
+ 377              		.global	n_raw_print
+ 378              		.syntax unified
+ 379              		.thumb
+ 380              		.thumb_func
+ 382              	n_raw_print:
+ 383              	.LVL43:
+ 384              	.LFB70:
+ 171:Src/nokia.c   **** 
+ 172:Src/nokia.c   **** void n_raw_print(nokia_t *n, char data)
+ 173:Src/nokia.c   **** {
+ 385              		.loc 1 173 1 is_stmt 1 view -0
+ 386              		.cfi_startproc
+ 387              		@ args = 0, pretend = 0, frame = 0
+ 388              		@ frame_needed = 0, uses_anonymous_args = 0
+ 389              		.loc 1 173 1 is_stmt 0 view .LVU75
+ 390 0000 38B5     		push	{r3, r4, r5, lr}
+ 391              		.cfi_def_cfa_offset 16
+ 392              		.cfi_offset 3, -16
+ 393              		.cfi_offset 4, -12
+ 394              		.cfi_offset 5, -8
+ 395              		.cfi_offset 14, -4
+ 396 0002 0446     		mov	r4, r0
+ 397 0004 0D46     		mov	r5, r1
+ 174:Src/nokia.c   ****     HAL_GPIO_WritePin(n->DC_port, n->DC_pin, 1);
+ 398              		.loc 1 174 5 is_stmt 1 view .LVU76
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 11
+
+
+ 399 0006 0122     		movs	r2, #1
+ 400 0008 0189     		ldrh	r1, [r0, #8]
+ 401              	.LVL44:
+ 402              		.loc 1 174 5 is_stmt 0 view .LVU77
+ 403 000a 4068     		ldr	r0, [r0, #4]
+ 404              	.LVL45:
+ 405              		.loc 1 174 5 view .LVU78
+ 406 000c FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 407              	.LVL46:
+ 175:Src/nokia.c   ****     n_spi_tx(n, data);
+ 408              		.loc 1 175 5 is_stmt 1 view .LVU79
+ 409 0010 2946     		mov	r1, r5
+ 410 0012 2046     		mov	r0, r4
+ 411 0014 FFF7FEFF 		bl	n_spi_tx
+ 412              	.LVL47:
+ 176:Src/nokia.c   ****     HAL_GPIO_WritePin(n->DC_port, n->DC_pin, 0);
+ 413              		.loc 1 176 5 view .LVU80
+ 414 0018 0022     		movs	r2, #0
+ 415 001a 2189     		ldrh	r1, [r4, #8]
+ 416 001c 6068     		ldr	r0, [r4, #4]
+ 417 001e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 418              	.LVL48:
+ 177:Src/nokia.c   **** }
+ 419              		.loc 1 177 1 is_stmt 0 view .LVU81
+ 420 0022 38BD     		pop	{r3, r4, r5, pc}
+ 421              		.loc 1 177 1 view .LVU82
+ 422              		.cfi_endproc
+ 423              	.LFE70:
+ 425              		.global	font
+ 426              		.section	.data.font,"aw"
+ 427              		.align	2
+ 430              	font:
+ 431 0000 00000000 		.ascii	"\000\000\000\000\000"
+ 431      00
+ 432 0005 00002F00 		.ascii	"\000\000/\000\000"
+ 432      00
+ 433 000a 00070007 		.ascii	"\000\007\000\007\000"
+ 433      00
+ 434 000f 147F147F 		.ascii	"\024\177\024\177\024"
+ 434      14
+ 435 0014 242A7F2A 		.ascii	"$*\177*\022"
+ 435      12
+ 436 0019 23130864 		.ascii	"#\023\010db"
+ 436      62
+ 437 001e 36495522 		.ascii	"6IU\"P"
+ 437      50
+ 438 0023 00050300 		.ascii	"\000\005\003\000\000"
+ 438      00
+ 439 0028 001C2241 		.ascii	"\000\034\"A\000"
+ 439      00
+ 440 002d 0041221C 		.ascii	"\000A\"\034\000"
+ 440      00
+ 441 0032 14083E08 		.ascii	"\024\010>\010\024"
+ 441      14
+ 442 0037 08083E08 		.ascii	"\010\010>\010\010"
+ 442      08
+ 443 003c 0000A060 		.ascii	"\000\000\240`\000"
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 12
+
+
+ 443      00
+ 444 0041 08080808 		.ascii	"\010\010\010\010\010"
+ 444      08
+ 445 0046 00606000 		.ascii	"\000``\000\000"
+ 445      00
+ 446 004b 20100804 		.ascii	" \020\010\004\002"
+ 446      02
+ 447 0050 3E514945 		.ascii	">QIE>"
+ 447      3E
+ 448 0055 00427F40 		.ascii	"\000B\177@\000"
+ 448      00
+ 449 005a 42615149 		.ascii	"BaQIF"
+ 449      46
+ 450 005f 2141454B 		.ascii	"!AEK1"
+ 450      31
+ 451 0064 1814127F 		.ascii	"\030\024\022\177\020"
+ 451      10
+ 452 0069 27454545 		.ascii	"'EEE9"
+ 452      39
+ 453 006e 3C4A4949 		.ascii	"<JII0"
+ 453      30
+ 454 0073 01710905 		.ascii	"\001q\011\005\003"
+ 454      03
+ 455 0078 36494949 		.ascii	"6III6"
+ 455      36
+ 456 007d 06494929 		.ascii	"\006II)\036"
+ 456      1E
+ 457 0082 00363600 		.ascii	"\00066\000\000"
+ 457      00
+ 458 0087 00563600 		.ascii	"\000V6\000\000"
+ 458      00
+ 459 008c 08142241 		.ascii	"\010\024\"A\000"
+ 459      00
+ 460 0091 14141414 		.ascii	"\024\024\024\024\024"
+ 460      14
+ 461 0096 00412214 		.ascii	"\000A\"\024\010"
+ 461      08
+ 462 009b 02015109 		.ascii	"\002\001Q\011\006"
+ 462      06
+ 463 00a0 32495951 		.ascii	"2IYQ>"
+ 463      3E
+ 464 00a5 7C121112 		.ascii	"|\022\021\022|"
+ 464      7C
+ 465 00aa 7F494949 		.ascii	"\177III6"
+ 465      36
+ 466 00af 3E414141 		.ascii	">AAA\""
+ 466      22
+ 467 00b4 7F414122 		.ascii	"\177AA\"\034"
+ 467      1C
+ 468 00b9 7F494949 		.ascii	"\177IIIA"
+ 468      41
+ 469 00be 7F090909 		.ascii	"\177\011\011\011\001"
+ 469      01
+ 470 00c3 3E414949 		.ascii	">AIIz"
+ 470      7A
+ 471 00c8 7F080808 		.ascii	"\177\010\010\010\177"
+ 471      7F
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 13
+
+
+ 472 00cd 00417F41 		.ascii	"\000A\177A\000"
+ 472      00
+ 473 00d2 2040413F 		.ascii	" @A?\001"
+ 473      01
+ 474 00d7 7F081422 		.ascii	"\177\010\024\"A"
+ 474      41
+ 475 00dc 7F404040 		.ascii	"\177@@@@"
+ 475      40
+ 476 00e1 7F020C02 		.ascii	"\177\002\014\002\177"
+ 476      7F
+ 477 00e6 7F040810 		.ascii	"\177\004\010\020\177"
+ 477      7F
+ 478 00eb 3E414141 		.ascii	">AAA>"
+ 478      3E
+ 479 00f0 7F090909 		.ascii	"\177\011\011\011\006"
+ 479      06
+ 480 00f5 3E415121 		.ascii	">AQ!^"
+ 480      5E
+ 481 00fa 7F091929 		.ascii	"\177\011\031)F"
+ 481      46
+ 482 00ff 46494949 		.ascii	"FIII1"
+ 482      31
+ 483 0104 01017F01 		.ascii	"\001\001\177\001\001"
+ 483      01
+ 484 0109 3F404040 		.ascii	"?@@@?"
+ 484      3F
+ 485 010e 1F204020 		.ascii	"\037 @ \037"
+ 485      1F
+ 486 0113 3F403840 		.ascii	"?@8@?"
+ 486      3F
+ 487 0118 63140814 		.ascii	"c\024\010\024c"
+ 487      63
+ 488 011d 07087008 		.ascii	"\007\010p\010\007"
+ 488      07
+ 489 0122 61514945 		.ascii	"aQIEC"
+ 489      43
+ 490 0127 007F4141 		.ascii	"\000\177AA\000"
+ 490      00
+ 491 012c 55AA55AA 		.ascii	"U\252U\252U"
+ 491      55
+ 492 0131 0041417F 		.ascii	"\000AA\177\000"
+ 492      00
+ 493 0136 04020102 		.ascii	"\004\002\001\002\004"
+ 493      04
+ 494 013b 40404040 		.ascii	"@@@@@"
+ 494      40
+ 495 0140 00030500 		.ascii	"\000\003\005\000\000"
+ 495      00
+ 496 0145 20545454 		.ascii	" TTTx"
+ 496      78
+ 497 014a 7F484444 		.ascii	"\177HDD8"
+ 497      38
+ 498 014f 38444444 		.ascii	"8DDD "
+ 498      20
+ 499 0154 38444448 		.ascii	"8DDH\177"
+ 499      7F
+ 500 0159 38545454 		.ascii	"8TTT\030"
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 14
+
+
+ 500      18
+ 501 015e 087E0901 		.ascii	"\010~\011\001\002"
+ 501      02
+ 502 0163 18A4A4A4 		.ascii	"\030\244\244\244|"
+ 502      7C
+ 503 0168 7F080404 		.ascii	"\177\010\004\004x"
+ 503      78
+ 504 016d 00447D40 		.ascii	"\000D}@\000"
+ 504      00
+ 505 0172 4080847D 		.ascii	"@\200\204}\000"
+ 505      00
+ 506 0177 7F102844 		.ascii	"\177\020(D\000"
+ 506      00
+ 507 017c 00417F40 		.ascii	"\000A\177@\000"
+ 507      00
+ 508 0181 7C041804 		.ascii	"|\004\030\004x"
+ 508      78
+ 509 0186 7C080404 		.ascii	"|\010\004\004x"
+ 509      78
+ 510 018b 38444444 		.ascii	"8DDD8"
+ 510      38
+ 511 0190 FC242424 		.ascii	"\374$$$\030"
+ 511      18
+ 512 0195 18242418 		.ascii	"\030$$\030\374"
+ 512      FC
+ 513 019a 7C080404 		.ascii	"|\010\004\004\010"
+ 513      08
+ 514 019f 48545454 		.ascii	"HTTT "
+ 514      20
+ 515 01a4 043F4440 		.ascii	"\004?D@ "
+ 515      20
+ 516 01a9 3C404020 		.ascii	"<@@ |"
+ 516      7C
+ 517 01ae 1C204020 		.ascii	"\034 @ \034"
+ 517      1C
+ 518 01b3 3C403040 		.ascii	"<@0@<"
+ 518      3C
+ 519 01b8 44281028 		.ascii	"D(\020(D"
+ 519      44
+ 520 01bd 1CA0A0A0 		.ascii	"\034\240\240\240|"
+ 520      7C
+ 521 01c2 4464544C 		.ascii	"DdTLD"
+ 521      44
+ 522 01c7 00107C82 		.ascii	"\000\020|\202\000"
+ 522      00
+ 523 01cc 0000FF00 		.ascii	"\000\000\377\000\000"
+ 523      00
+ 524 01d1 00827C10 		.ascii	"\000\202|\020\000"
+ 524      00
+ 525 01d6 00060909 		.ascii	"\000\006\011\011\006"
+ 525      06
+ 526 01db 00000000 		.space	25
+ 526      00000000 
+ 526      00000000 
+ 526      00000000 
+ 526      00000000 
+ 527              		.text
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 15
+
+
+ 528              	.Letext0:
+ 529              		.file 2 "c:\\users\\abhinav\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-vscode\\@x
+ 530              		.file 3 "c:\\users\\abhinav\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-vscode\\@x
+ 531              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h"
+ 532              		.file 5 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 533              		.file 6 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h"
+ 534              		.file 7 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h"
+ 535              		.file 8 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.h"
+ 536              		.file 9 "Inc/nokia.h"
+ 537              		.file 10 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h"
+ARM GAS  C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s 			page 16
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 nokia.c
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:19     .text.n_spi_tx:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:25     .text.n_spi_tx:00000000 n_spi_tx
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:74     .text.n_init:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:80     .text.n_init:00000000 n_init
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:159    .text.n_pos:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:165    .text.n_pos:00000000 n_pos
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:219    .text.n_clear:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:225    .text.n_clear:00000000 n_clear
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:280    .text.n_print:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:286    .text.n_print:00000000 n_print
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:371    .text.n_print:00000054 $d
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:430    .data.font:00000000 font
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:376    .text.n_raw_print:00000000 $t
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:382    .text.n_raw_print:00000000 n_raw_print
+C:\Users\Abhinav\AppData\Local\Temp\cc39dxPw.s:427    .data.font:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_GPIO_WritePin
+HAL_SPI_Transmit
+HAL_Delay
