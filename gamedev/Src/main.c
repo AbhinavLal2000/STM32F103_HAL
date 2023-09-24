@@ -41,6 +41,9 @@ typedef StaticSemaphore_t osStaticMutexDef_t;
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
+#define MAX_SPRITES  14
+#define MAX_Y_SPRITE 5
+#define MAX_X_BAR    75
 
 /* USER CODE END PM */
 
@@ -92,12 +95,18 @@ typedef struct
 {
   int x;
   int y;
-
+  int is_active;
+  
 } enemy_sprite_t;
+
+enemy_sprite_t e[MAX_SPRITES];
 
 int x_index = 0;
 int y_index = 0;
 int score   = 0;
+
+int bar_x;
+int bar_y;
 
 /* USER CODE END PV */
 
@@ -145,13 +154,72 @@ int get_random_number(void)
   return 5;
 }
 
-enemy_sprite_t* generate_enemy_sprite(void)
+void game_delay(void)
 {
-  int x = get_random_number();
-  enemy_sprite_t *e = (enemy_sprite_t*)malloc(1*sizeof(enemy_sprite_t));
-  e->x = x;
-  e->y = 1;
-  return e;
+  HAL_Delay(500);
+}
+
+int check_sprite(enemy_sprite_t *e)
+{
+  if (e->is_active == 0)
+  {
+    return 0;
+  }
+  else if ((e->y >= MAX_Y_SPRITE) && (e->x == bar_x))
+  {
+    // clear sprite from screen
+    e->is_active = 0;
+    // score++
+    return 0;
+  }
+  else if (e->y > MAX_Y_SPRITE)
+  {
+    // clear sprite from screen
+    e->is_active = 0;
+    // life--
+    return 0;
+  }
+  return 1;
+}
+
+void generate_sprites(void* args)
+{
+  int i;
+  while (1)
+  {
+    for (int index = 0; index < MAX_SPRITES; index++)
+    {
+      i = get_random_number();
+      if (e[i].is_active == 0)
+      {
+        e[i].is_active = 1;
+        e[i].x = i;
+        e[i].y = 1;
+      }
+    }
+    game_delay();
+  }
+}
+
+void move_sprites(void *args)
+{
+  nokia_t *n  = (nokia_t*)args;
+  char *blank_sprite = " ";
+  char *sprite       = "#";
+
+  while (1)
+  {
+    for (int index = 0; index < MAX_SPRITES; index++)
+    {
+      if (check_sprite(&e[index]))
+      {
+        n_print(n, e[index].y, e[index].x, sprite);
+        game_delay();
+        n_print(n, e[index].y, e[index].x, blank_sprite);
+        e[index].y += 1;
+      }
+    }
+  }
 }
 
 void lcd_task(void* args)
